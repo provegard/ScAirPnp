@@ -5,12 +5,12 @@ import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import scala.xml.XML
 
-class DeviceTest {
+class MediaRendererDeviceTest {
   private var device: Device = null
 
   @BeforeClass
   def createDevice(): Unit = {
-    val stream = getClass.getResourceAsStream("device_root.xml")
+    val stream = getClass.getResourceAsStream("mediarenderer/device_root.xml")
     val elem = XML.load(stream)
     device = new Device(elem, "http://www.base.com")
   }
@@ -49,5 +49,10 @@ class DeviceTest {
   def shouldLookupServiceById(): Unit = {
     val s = device.getServiceById("urn:upnp-org:serviceId:AVTransport")
     assertThat(s).isNotNull()
+  }
+  
+  @Test
+  def shouldBeMediaRenderer(): Unit = {
+    assertThat(device.isMediaRenderer).isTrue
   }
 }

@@ -12,12 +12,12 @@ class ServiceTest {
 
   @BeforeClass
   def createService(): Unit = {
-    var stream = getClass().getResourceAsStream("device_root.xml")
+    var stream = getClass.getResourceAsStream("mediarenderer/device_root.xml")
     var root = XML.load(stream)
     val device = new Device(root, "http://www.base.com")
 
     service = device.getServiceById("urn:upnp-org:serviceId:AVTransport").get
-    stream = getClass.getResourceAsStream("service_scpd.xml")
+    stream = getClass.getResourceAsStream("mediarenderer/service_scpd.xml")
     root = XML.load(stream)
     service.initialize(root)
   }
