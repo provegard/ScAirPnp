@@ -1,5 +1,6 @@
 package org.airpnp.airplay;
 
+import scala.language.implicitConversions
 import scala.collection.JavaConversions._
 import javax.jmdns.ServiceInfo;
 
@@ -13,7 +14,7 @@ class AirPlayService(private val device: AirPlayDevice, private val port: Int) {
       ("features", features.getBytes()),
       ("model", device.getModel().getBytes()))
 
-    ServiceInfo.create(serviceType, device.getName(), port, 0, 0, true, mapAsJavaMap(properties))
+    ServiceInfo.create(serviceType, device.getName(), port, 0, 0, true, properties)
   }
 
   def getService() = service
