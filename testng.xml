@@ -3,15 +3,12 @@
 	<test name="Automatic tests">
 		<groups>
 			<run>
-				<exclude name="Manual"/>
+				<exclude name="Manual" />
 			</run>
 		</groups>
-	
+
 		<packages>
-			<package name="org.airpnp"/>
-			<package name="org.airpnp.plist"/>
-			<package name="org.airpnp.plumbing"/>
-			<package name="org.airpnp.airplay"/>
+			<package name="org.airpnp.*" />
 		</packages>
 	</test>
 </suite>
