@@ -1,5 +1,6 @@
 package org.airpnp.plumbing
 
+import scala.language.implicitConversions
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 

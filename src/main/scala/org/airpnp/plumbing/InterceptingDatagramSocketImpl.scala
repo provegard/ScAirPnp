@@ -1,5 +1,6 @@
 package org.airpnp.plumbing;
 
+import scala.language.implicitConversions
 import java.net.DatagramPacket;
 import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
