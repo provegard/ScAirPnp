@@ -7,13 +7,16 @@ import net.pms.PMS
 
 class AirPnp extends ExternalListener with Logging {
 
-  info("AirPnp plugin starting!");
-  
+  info("AirPnp plugin starting!")
+  if (!Util.hasJDKHttpServer) {
+    error("AirPnp needs a JDK rather than a JRE for HTTP server support.")
+  }
+
   def config(): javax.swing.JComponent = null
-  
+
   def name(): String = "AirPnp"
-    
+
   def shutdown(): Unit = {
-    info("AirPnp plugin shutting down!");
+    info("AirPnp plugin shutting down!")
   }
 }

@@ -29,7 +29,7 @@ object Util {
   //            .newInstance();
   //    private static final XPathFactory xpFactory = XPathFactory.newInstance();
   //
-      
+
   /**
    * Split a USN into a UDN and a device or service type.
    * <p>
@@ -147,17 +147,17 @@ object Util {
     val hx = "%012X".format(h).substring(0, 12)
     (for (i <- 0 until 12 by 2) yield hx.substring(i, i + 2)).mkString(":")
   }
-  //    
-  //    public static int findPort() throws IOException {
-  //        ServerSocket serverSocket = null;
-  //        try {
-  //            serverSocket = new ServerSocket(0);
-  //            return serverSocket.getLocalPort();
-  //        } finally {
-  //            serverSocket.close();
-  //        }
-  //    }
-  //    
+
+  def findPort() = {
+    var serverSocket: ServerSocket = null;
+    try {
+      serverSocket = new ServerSocket(0)
+      serverSocket.getLocalPort()
+    } finally {
+      serverSocket.close
+    }
+  }
+
   def readAllBytes(is: InputStream): Array[Byte] = {
     val bos = new ByteArrayOutputStream
     val buf = new Array[Byte](8192)
@@ -167,5 +167,14 @@ object Util {
       len = is.read(buf)
     }
     bos.toByteArray()
+  }
+
+  def hasJDKHttpServer() = {
+    try {
+      Class.forName("com.sun.net.httpserver.HttpServer")
+      true
+    } catch {
+      case _: ClassNotFoundException => false
+    }
   }
 }
