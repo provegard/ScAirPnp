@@ -3,12 +3,12 @@ package org.airpnp.airplay
 import org.airpnp.Logging
 import javax.jmdns.{JmDNS, ServiceInfo}
 import org.airpnp.Networking
+import java.net.InetAddress
 
 class MDnsServiceHost extends Logging {
   var jmdns: JmDNS = null
 
-  def start() = {
-    val addr = Networking.getInetAddress
+  def start(addr: InetAddress) = {
     debug("Starting mDNS service host at address {}.", addr);
     jmdns = JmDNS.create(addr)
   }
