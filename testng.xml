@@ -1,0 +1,17 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="airpnp" verbose="1">
+	<test name="Automatic tests">
+		<groups>
+			<run>
+				<exclude name="Manual"/>
+			</run>
+		</groups>
+	
+		<packages>
+			<package name="org.airpnp"/>
+			<package name="org.airpnp.plist"/>
+			<package name="org.airpnp.plumbing"/>
+			<package name="org.airpnp.airplay"/>
+		</packages>
+	</test>
+</suite>
