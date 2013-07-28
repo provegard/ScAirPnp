@@ -33,17 +33,22 @@ class UpnpMessageTest {
       val message = new UPnPMessage(data)
       assertThat(message.isNotification).isFalse()
     }
-    
+
     @Test def shouldHaveNoNotificationSubType(): Unit = {
       val message = new UPnPMessage(data)
       assertThat(message.getNotificationSubType).isEqualTo(None)
     }
-    
-            @Test def shouldHaveNoLocation(): Unit = {
+
+    @Test def shouldHaveNoLocation(): Unit = {
       val message = new UPnPMessage(data)
       assertThat(message.getLocation).isEqualTo(None);
     }
 
+    @Test def shouldHaveNoType(): Unit = {
+      val message = new UPnPMessage(data)
+      assertThat(message.getType).isEqualTo(None);
+
+    }
   }
 
   class NotifyMessageTest {
@@ -62,23 +67,23 @@ class UpnpMessageTest {
       val message = new UPnPMessage(data)
       assertThat(message.isNotification).isTrue()
     }
-    
+
     @Test def shouldHaveCorrectUdn(): Unit = {
       val message = new UPnPMessage(data)
       assertThat(message.getUdn).isEqualTo(Some("uuid:17a96d54-d51d-44ee-919e-337163d78eae"));
     }
-    
-        @Test def shouldHaveCorrectLocation(): Unit = {
+
+    @Test def shouldHaveCorrectLocation(): Unit = {
       val message = new UPnPMessage(data)
       assertThat(message.getLocation).isEqualTo(Some("http://172.16.0.25:2869/upnphost/udhisapi.dll?content=uuid:17a96d54-d51d-44ee-919e-337163d78eae"));
     }
-    
+
     @Test def shouldBeAlive(): Unit = {
       val message = new UPnPMessage(data)
       assertThat(message.isAlive).isTrue()
     }
 
-        @Test def shouldNotBeByeBye(): Unit = {
+    @Test def shouldNotBeByeBye(): Unit = {
       val message = new UPnPMessage(data)
       assertThat(message.isByeBye).isFalse()
     }
@@ -87,11 +92,15 @@ class UpnpMessageTest {
       val message = new UPnPMessage(data.replace("ssdp:alive", "ssdp:byebye"))
       assertThat(message.isByeBye).isTrue()
     }
-    
+
     @Test def shouldNotBeAliveIfNTSIsChanged(): Unit = {
       val message = new UPnPMessage(data.replace("ssdp:alive", "ssdp:byebye"))
       assertThat(message.isAlive).isFalse()
     }
 
+    @Test def shouldHaveTheCorrectType(): Unit = {
+      val message = new UPnPMessage(data)
+      assertThat(message.getType).isEqualTo(Some("upnp:rootdevice"));
+    }
   }
 }

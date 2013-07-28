@@ -28,6 +28,7 @@ class UPnPMessage(private val data: String) {
     }).toMap
   }
 
+  def getType() = _type
   def getUdn() = udn
   def getLocation() = headers.get("LOCATION")
   def isNotification() = method == "NOTIFY"
