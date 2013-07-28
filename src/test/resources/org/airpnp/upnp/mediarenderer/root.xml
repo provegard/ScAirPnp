@@ -53,21 +53,21 @@
 			<service>
 				<serviceType>urn:schemas-upnp-org:service:AVTransport:1</serviceType>
 				<serviceId>urn:upnp-org:serviceId:AVTransport</serviceId>
-				<SCPDURL>MediaRenderer_AVTransport/scpd.xml</SCPDURL>
+				<SCPDURL>service_scpd.xml</SCPDURL>
 				<controlURL>MediaRenderer_AVTransport/control</controlURL>
 				<eventSubURL>MediaRenderer_AVTransport/event</eventSubURL>
 			</service>
 			<service>
 				<serviceType>urn:schemas-upnp-org:service:ConnectionManager:1</serviceType>
 				<serviceId>urn:upnp-org:serviceId:ConnectionManager</serviceId>
-				<SCPDURL>MediaRenderer_ConnectionManager/scpd.xml</SCPDURL>
+				<SCPDURL>service_scpd.xml</SCPDURL>
 				<controlURL>MediaRenderer_ConnectionManager/control</controlURL>
 				<eventSubURL>MediaRenderer_ConnectionManager/event</eventSubURL>
 			</service>
 			<service>
 				<serviceType>urn:schemas-upnp-org:service:RenderingControl:1</serviceType>
 				<serviceId>urn:upnp-org:serviceId:RenderingControl</serviceId>
-				<SCPDURL>MediaRenderer_RenderingControl/scpd.xml</SCPDURL>
+				<SCPDURL>service_scpd.xml</SCPDURL>
 				<controlURL>MediaRenderer_RenderingControl/control</controlURL>
 				<eventSubURL>MediaRenderer_RenderingControl/event</eventSubURL>
 			</service>

@@ -10,7 +10,7 @@ class MediaRendererDeviceTest {
 
   @BeforeClass
   def createDevice(): Unit = {
-    val stream = getClass.getResourceAsStream("mediarenderer/device_root.xml")
+    val stream = getClass.getResourceAsStream("mediarenderer/root.xml")
     val elem = XML.load(stream)
     device = new Device(elem, "http://www.base.com")
   }

@@ -6,10 +6,10 @@
   </specVersion>
   <device>
     <deviceType>urn:schemas-upnp-org:device:Printer:1</deviceType>
-    <friendlyName />
+    <friendlyName>Laser</friendlyName>
     <manufacturer>APrinterManufacturer</manufacturer>
     <modelName>APrinter</modelName>
-    <UDN />
+    <UDN>uuid:06aee441-986a-44af-9d45-2378213b4e60</UDN>
     <serviceList>
       <service>
         <serviceType>urn:schemas-upnp-org:service:PrintBasic:1</serviceType>
