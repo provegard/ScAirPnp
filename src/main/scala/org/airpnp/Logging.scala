@@ -4,12 +4,12 @@ import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 
 trait Logging {
-    val logger: Logger = LoggerFactory.getLogger(getClass)
+    protected val logger: Logger = LoggerFactory.getLogger(getClass)
     
-    def debug(msg: String, os: AnyRef*) = logger.debug(msg, os)
-    def trace(msg: String, os: AnyRef*) = logger.trace(msg, os)
-    def info(msg: String, os: AnyRef*) = logger.info(msg, os)
-    def warn(msg: String, os: AnyRef*) = logger.warn(msg, os)
-    def error(msg: String, os: AnyRef*) = logger.error(msg, os)
-    def error(msg: String, t: Throwable) = logger.error(msg, t)
+    protected def debug(msg: String, os: AnyRef*) = logger.debug(msg, os)
+    protected def trace(msg: String, os: AnyRef*) = logger.trace(msg, os)
+    protected def info(msg: String, os: AnyRef*) = logger.info(msg, os)
+    protected def warn(msg: String, os: AnyRef*) = logger.warn(msg, os)
+    protected def error(msg: String, os: AnyRef*) = logger.error(msg, os)
+    protected def error(msg: String, t: Throwable) = logger.error(msg, t)
 }
