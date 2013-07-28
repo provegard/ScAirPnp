@@ -29,25 +29,7 @@ object Util {
   //            .newInstance();
   //    private static final XPathFactory xpFactory = XPathFactory.newInstance();
   //
-  //    private static final String AVTRANSPORT_SERVICE_TYPE = "urn:schemas-upnp-org:service:AVTransport:1";
-  //    private static final String CONNMANAGER_SERVICE_TYPE = "urn:schemas-upnp-org:service:ConnectionManager:1";
-  //
-  //    public static boolean isMediaRenderer(Device device) {
-  //        List<String> serviceTypes = new ArrayList<String>(Arrays.asList(AVTRANSPORT_SERVICE_TYPE, CONNMANAGER_SERVICE_TYPE));
-  //        for (Service s : device.getServices()) {
-  //            String actualType = s.getServiceType();
-  //            Iterator<String> iterator = serviceTypes.iterator();
-  //            while (iterator.hasNext()) {
-  //                String requiredType = iterator.next();
-  //                if (areServiceTypesCompatible(requiredType, actualType)) {
-  //                    iterator.remove();
-  //                    break;
-  //                }
-  //            }
-  //        }
-  //        return serviceTypes.size() == 0;
-  //    }
-  //    
+      
   /**
    * Split a USN into a UDN and a device or service type.
    * <p>
