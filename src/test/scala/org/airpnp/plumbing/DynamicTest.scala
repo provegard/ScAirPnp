@@ -78,20 +78,20 @@ class DynamicTest {
 
   @Test def shouldCreateNewInstance(): Unit = {
     val t = classOf[Target]
-    val inst: AnyRef = t createNew;
+    val inst: AnyRef = t.createNew;
     assertThat(inst).isInstanceOf(classOf[Target])
   }
 
   @Test def shouldCreateNewInstanceWithPrivateConstructor(): Unit = {
     val t = classOf[PrivateConstructorTarget]
-    val inst: AnyRef = t createNew;
+    val inst: AnyRef = t.createNew;
     assertThat(inst).isInstanceOf(classOf[PrivateConstructorTarget])
   }
 
   @Test(expectedExceptions = Array(classOf[IOException]))
   def shouldUnpackConstructorExceptions(): Unit = {
     val t = classOf[ThrowingConstructorTarget]
-    t createNew;
+    t.createNew;
   }
 
   @Test def shouldInvokeStaticMethod(): Unit = {
