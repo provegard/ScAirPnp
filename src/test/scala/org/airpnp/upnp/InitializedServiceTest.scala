@@ -7,12 +7,12 @@ import org.testng.annotations.Test
 import scala.xml.XML
 import org.testng.annotations.DataProvider
 
-class ServiceTest {
+class InitializedServiceTest {
   private var service: Service = null
 
   @BeforeClass
   def createService(): Unit = {
-    var stream = getClass.getResourceAsStream("mediarenderer/device_root.xml")
+    var stream = getClass.getResourceAsStream("mediarenderer/root.xml")
     var root = XML.load(stream)
     val device = new Device(root, "http://www.base.com")
 
@@ -57,7 +57,7 @@ class ServiceTest {
   @Test
   def shouldHaveActionsAfterInitialization(): Unit = {
     val a = service.action("GetCurrentTransportActions")
-    assertThat(a).isNotNull()
+    assertThat(a.isDefined).isTrue
   }
   // def test_service_action_calls_soap_sender(self):
   // self.service.GetCurrentTransportActions(InstanceID="0")

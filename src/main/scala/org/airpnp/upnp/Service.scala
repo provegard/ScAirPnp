@@ -14,7 +14,10 @@ class Service(protected val start: Node, private val baseUrl: String) extends Xm
     actions = Map((scpdElement \\ "actionList" \ "action").map(new Action(_)).map({ a => a.getName -> a }): _*)
   }
 
-  def action(name: String): Option[Action] = actions.get(name)
+  def action(name: String): Option[Action] = actions match {
+    case x: Map[_,_] => actions.get(name)
+    case _ => None
+  }
   
   def getSCPDURL() = new URL(baseUrlUrl, text(_ \ "SCPDURL").get).toString
 }
