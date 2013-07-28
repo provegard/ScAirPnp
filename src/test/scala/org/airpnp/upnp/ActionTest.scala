@@ -10,7 +10,7 @@ class ActionTest {
 
   @BeforeClass
   def createAction(): Unit = {
-    val stream = getClass().getResourceAsStream("service_scpd.xml")
+    val stream = getClass().getResourceAsStream("mediarenderer/service_scpd.xml")
     val root = XML.load(stream)
     val a = (root \\ "actionList" \ "action")(0)
 

@@ -24,35 +24,32 @@ class InitializedServiceTest {
 
   @Test
   def shouldExposeServiceType(): Unit = {
-    assertThat(service.getServiceType).isEqualTo(
-      "urn:schemas-upnp-org:service:AVTransport:1")
+    assertThat(service.getServiceType).isEqualTo("urn:schemas-upnp-org:service:AVTransport:1")
   }
 
   @Test
   def shouldExposeServiceId(): Unit = {
-    assertThat(service.getServiceId).isEqualTo(
-      "urn:upnp-org:serviceId:AVTransport")
+    assertThat(service.getServiceId).isEqualTo("urn:upnp-org:serviceId:AVTransport")
   }
 
   @Test
   def shouldExposeSCPDURLWithBaseUrl(): Unit = {
-    assertThat(service.getSCPDURL).startsWith(
-      "http://www.base.com/MediaRenderer_AVTransport/")
+    assertThat(service.getSCPDURL).startsWith("http://www.base.com/service")
   }
-  
-//  @DataProvider
-//  def urlAttributes(): java.util.Iterator[Array[Object]] = {
-//    return List(Array[Object]("SCPDURL"),
-//      Array[Object]("controlURL"), Array[Object]("eventSubURL"))
-//      .iterator
-//  }
-//  
-//      @Test(dataProvider = "urlAttributes")
-//      def shouldResolveUrlsAgainstBaseUrl(attrName: String): Unit = {
-//          // URLs are resolved using the base URL
-//          assertThat(service.attr(attrName)).startsWith(
-//                  "http://www.base.com/MediaRenderer_AVTransport/")
-//      }
+
+  //  @DataProvider
+  //  def urlAttributes(): java.util.Iterator[Array[Object]] = {
+  //    return List(Array[Object]("SCPDURL"),
+  //      Array[Object]("controlURL"), Array[Object]("eventSubURL"))
+  //      .iterator
+  //  }
+  //  
+  //      @Test(dataProvider = "urlAttributes")
+  //      def shouldResolveUrlsAgainstBaseUrl(attrName: String): Unit = {
+  //          // URLs are resolved using the base URL
+  //          assertThat(service.attr(attrName)).startsWith(
+  //                  "http://www.base.com/MediaRenderer_AVTransport/")
+  //      }
 
   @Test
   def shouldHaveActionsAfterInitialization(): Unit = {
