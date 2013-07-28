@@ -6,7 +6,7 @@ import org.airpnp.Networking
 import java.net.InetAddress
 
 class MDnsServiceHost extends Logging {
-  var jmdns: JmDNS = null
+  private var jmdns: JmDNS = null
 
   def start(addr: InetAddress) = {
     debug("Starting mDNS service host at address {}.", addr);
