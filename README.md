@@ -6,11 +6,18 @@ AirPnp piggybacks on PS3 Media Server for that reason.
 
 AirPnp was originally written in Python, but I failed to find any robust, up-to-date
 Python media server with a decent programmatic interface, so I decided to go for 
-Scala and PS3 Media Server instead. 
+Scala and PS3 Media Server instead.
+
+**Note**: I'm in the process of migrating the Python code from old AirPnp into this
+repository, converting it into Scala. Thus, the code you see here is not read yet.
 
 ## Building
 
+TBD
+
 ## Installing
+
+TBD
 
 ## License
 
