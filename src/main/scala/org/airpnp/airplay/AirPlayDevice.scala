@@ -2,9 +2,9 @@ package org.airpnp.airplay;
 
 import java.io.InputStream
 
-abstract class AirPlayDevice {
-  type DurationAndPosition = (Double, Double)
+class DurationAndPosition(val duration: Double, val position: Double)
 
+abstract class AirPlayDevice {
   def getModel(): String
   def getDeviceId(): String
   def getFeatures(): Int

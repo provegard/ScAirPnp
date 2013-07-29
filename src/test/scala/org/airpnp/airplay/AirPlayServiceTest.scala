@@ -5,7 +5,7 @@ import java.io.InputStream
 import java.net.InetAddress
 
 private class FakeAirPlayDevice(private val name: String, private val udn: String) extends BaseAirPlayDevice(name, udn) {
-  def getScrub() = (0, 0)
+  def getScrub() = new DurationAndPosition(0, 0)
   def isPlaying() = false
   def setScrub(position: Double) = ()
   def play(location: String, position: Double) = ()
