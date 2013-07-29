@@ -15,6 +15,6 @@ abstract class AirPlayDevice {
   def stop()
   def showPhoto(data: InputStream, transition: String)
   def setRate(rate: Double)
-  def setProperty(name: String, value: AnyRef)
+  def setProperty(name: String, value: Any)
   def getName(): String
 }

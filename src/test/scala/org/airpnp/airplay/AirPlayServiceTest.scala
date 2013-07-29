@@ -12,7 +12,7 @@ private class FakeAirPlayDevice(private val name: String, private val udn: Strin
   def stop() = ()
   def showPhoto(data: InputStream, transition: String) = ()
   def setRate(rate: Double) = ()
-  def setProperty(name: String, value: AnyRef) = ()
+  def setProperty(name: String, value: Any) = ()
 }
 
 class AirPlayServiceTest {
