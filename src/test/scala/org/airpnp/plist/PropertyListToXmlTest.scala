@@ -19,7 +19,7 @@ class PropertyListToXmlTest {
       new KeyValue("protovers", new String("1.0")),
       new KeyValue("test", True.INSTANCE))
 
-    val plist = new PropertyList(new Dict(pairs))
+    val plist = new PropertyList(new Dict(pairs: _*))
     val xml = plist.toXml
 
     assertThat(xml)

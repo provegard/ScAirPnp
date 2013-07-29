@@ -27,7 +27,8 @@ class KeyValue private[plist] (private val k: PropertyListObject[_], private val
   def getValue() = v
 }
 
-class Dict(val entries: Seq[KeyValue]) extends PropertyListObject[Map[java.lang.String, Any]] {
+class Dict(val entries: KeyValue*) extends PropertyListObject[Map[java.lang.String, Any]] {
+  
   private var map: Map[java.lang.String, Any] = null
   private def createMap() = entries.map(e => (e.getKey, e.getValue.getValue)).toMap
   def accept(visitor: PropertyListObjectVisitor) = visitor.visit(this)

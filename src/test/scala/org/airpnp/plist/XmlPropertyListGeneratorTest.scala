@@ -127,7 +127,7 @@ class XmlPropertyListGeneratorTest {
       new KeyValue("z", True.INSTANCE),
       new KeyValue("a", new Integer(42)))
 
-    val plist = new PropertyList(new Dict(pairs))
+    val plist = new PropertyList(new Dict(pairs: _*))
     val doc = new XmlPropertyListGenerator().generate(plist)
 
     val root = doc.docElem

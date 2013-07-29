@@ -292,7 +292,7 @@ object BinaryPropertyListDecoder {
           for (i <- 0 until count) {
             values(i) = new BinaryPropertyListDecoder.ObjectRef(readSizedInt(objectRefSize).asInstanceOf[Int])
           }
-          new Dict(keys.zip(values).map(t => new KeyValue(t._1, t._2)))
+          new Dict(keys.zip(values).map(t => new KeyValue(t._1, t._2)): _*)
         }
         case _ => unknown
       }
