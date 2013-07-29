@@ -1,5 +1,6 @@
 package org.airpnp.upnp;
 
+import org.airpnp.plumbing.Dynamic._
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -16,11 +17,7 @@ object UPNP {
 //        return multicastSocket;
 //    }
 //
-//    public static InetAddress getUPNPAddress() {
-//        InetAddress upnpAddress = (InetAddress) IgnoreMemberAccessibility
-//                .invokeStatic(UPNPHelper.class, "getUPNPAddress");
-//        return upnpAddress;
-//    }
+    def getUPNPAddress() = classOf[UPNPHelper].callStatic("getUPNPAddress").asInstanceOf[InetAddress]
 //
 //    public static void cleanupMulticastSocket(MulticastSocket socket) {
 //        // Clean up the multicast socket nicely
