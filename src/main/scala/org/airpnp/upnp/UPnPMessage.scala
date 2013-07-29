@@ -38,4 +38,6 @@ class UPnPMessage(private val data: String) {
   def isAlive() = getNotificationSubType match { case Some(s) => s == "ssdp:alive" case None => false }
   def isByeBye() = getNotificationSubType match { case Some(s) => s == "ssdp:byebye" case None => false }
   override def toString() = data
+  
+  def isBuildable() = udn.isDefined && getLocation.isDefined
 }

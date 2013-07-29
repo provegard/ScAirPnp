@@ -41,13 +41,17 @@ class UpnpMessageTest {
 
     @Test def shouldHaveNoLocation(): Unit = {
       val message = new UPnPMessage(data)
-      assertThat(message.getLocation).isEqualTo(None);
+      assertThat(message.getLocation).isEqualTo(None)
     }
 
     @Test def shouldHaveNoType(): Unit = {
       val message = new UPnPMessage(data)
-      assertThat(message.getType).isEqualTo(None);
+      assertThat(message.getType).isEqualTo(None)
+    }
 
+    @Test def shouldNotBeBuildable(): Unit = {
+      val message = new UPnPMessage(data)
+      assertThat(message.isBuildable).isFalse
     }
   }
 
@@ -102,5 +106,11 @@ class UpnpMessageTest {
       val message = new UPnPMessage(data)
       assertThat(message.getType).isEqualTo(Some("upnp:rootdevice"));
     }
+
+    @Test def shouldBeBuildable(): Unit = {
+      val message = new UPnPMessage(data)
+      assertThat(message.isBuildable).isTrue
+    }
+
   }
 }
