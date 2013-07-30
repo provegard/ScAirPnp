@@ -1,9 +1,11 @@
 package org.airpnp.upnp
 
 import org.airpnp.Util
+import java.net.DatagramPacket
 
 class UPnPMessage(private val data: String) {
-
+  def this(p: DatagramPacket) = this(new String(p.getData, 0, p.getLength))
+  
   private val (method, udn, _type, headers) = {
     val lines = data.split("\r\n")
     val method = lines(0).split(" ")(0)
