@@ -122,6 +122,7 @@ class AirPlayHttpServerTest {
     val root = XML.load(is)
     is.close()
 
+    // http://stackoverflow.com/questions/2803448/how-can-i-get-a-node-adjacent-to-a-unique-node-using-scala
     def findValue(xml: NodeSeq, key: String): Option[String] = {
       val components = xml \ "_"
       val index = components.zipWithIndex.find(_._1.text == key).map(_._2)
