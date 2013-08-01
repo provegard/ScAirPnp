@@ -4,6 +4,8 @@ import org.fest.assertions.Assertions.assertThat
 import org.testng.annotations.BeforeMethod
 import org.testng.annotations.Test
 
+import javax.xml.soap.MessageFactory
+
 class SoapMessageTest {
     private var message: SoapMessage = null
 

@@ -1,31 +1,49 @@
-package org.airpnp.upnp
+package org.airpnp.upnp	
 
 import javax.xml.soap.MessageFactory
 import javax.xml.transform.TransformerFactory
 import java.io.StringWriter
 import javax.xml.transform.stream.StreamResult
+import java.io.InputStream
+import scala.xml.XML
+import scala.xml.Node
+import javax.xml.soap.SOAPElement
 
 object SoapMessage {
   private val messageFactory = MessageFactory.newInstance
   private val xform = TransformerFactory.newInstance.newTransformer
+
+  def parse(is: InputStream) = new SoapMessage(is)
 }
 
-class SoapMessage(private val serviceType: String, private val name: String) {
+class SoapMessage private (private val serviceTypeIn: String, private val nameIn: String, private val is: InputStream) {
+  private val (soapPart, bodyElement, serviceType: String, name: String) = {
+    if (is != null) {
+    	val soapMessage = SoapMessage.messageFactory.createMessage(null, is)
+	    val soapPart = soapMessage.getSOAPPart
+	    val soapEnvelope = soapPart.getEnvelope
 
-  private val (soapPart, bodyElement) = {
-    val soapMessage = SoapMessage.messageFactory.createMessage
-    val soapPart = soapMessage.getSOAPPart
-    val soapEnvelope = soapPart.getEnvelope
-
-    // Header is optional, remove it
-    val soapHeader = soapEnvelope.getHeader
-    soapEnvelope.removeChild(soapHeader)
-
-    val soapBody = soapEnvelope.getBody();
-    val bodyName = soapEnvelope.createName(name, "u", serviceType);
-    val bodyElement = soapBody.addBodyElement(bodyName);
-    (soapPart, bodyElement)
+	    val soapBody = soapEnvelope.getBody
+	    val bodyElement = soapBody.getChildElements.next().asInstanceOf[SOAPElement]
+    	(soapPart, bodyElement, bodyElement.getNamespaceURI(), bodyElement.getLocalName)
+    } else {
+	    val soapMessage = SoapMessage.messageFactory.createMessage
+	    val soapPart = soapMessage.getSOAPPart
+	    val soapEnvelope = soapPart.getEnvelope
+	
+	    // Header is optional, remove it
+	    val soapHeader = soapEnvelope.getHeader
+	    soapEnvelope.removeChild(soapHeader)
+	
+	    val soapBody = soapEnvelope.getBody();
+	    val bodyName = soapEnvelope.createName(nameIn, "u", serviceTypeIn)
+	    val bodyElement = soapBody.addBodyElement(bodyName)
+	    (soapPart, bodyElement, serviceTypeIn, nameIn)
+    }
   }
+
+  def this(serviceType: String, name: String) = this(serviceType, name, null)
+  def this(is: InputStream) = this(null, null, is)
 
   def getName(): String = name
   def getHeader(): String = serviceType + "#" + getName()
