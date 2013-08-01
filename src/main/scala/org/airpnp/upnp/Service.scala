@@ -11,7 +11,7 @@ class Service(protected val start: Node, private val baseUrl: String) extends Xm
   def getServiceType() = text(_ \ "serviceType").get
 
   def initialize(scpdElement: Node) = {
-    actions = Map((scpdElement \\ "actionList" \ "action").map(new Action(_)).map({ a => a.getName -> a }): _*)
+    actions = Map((scpdElement \\ "actionList" \ "action").map(new Action(_, this)).map({ a => a.getName -> a }): _*)
   }
 
   def action(name: String): Option[Action] = actions match {

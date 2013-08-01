@@ -10,11 +10,26 @@ class ActionTest {
 
   @BeforeClass
   def createAction(): Unit = {
-    val stream = getClass().getResourceAsStream("mediarenderer/service_scpd.xml")
-    val root = XML.load(stream)
-    val a = (root \\ "actionList" \ "action")(0)
+    val deviceStream = getClass.getResourceAsStream("mediarenderer/root.xml")
+    val device = new Device(XML.load(deviceStream), "http://base.com")
+    val service = device.getServices.head
 
-    action = new Action(a)
+    val serviceStream = getClass.getResourceAsStream("mediarenderer/service_scpd.xml")
+    val root = XML.load(serviceStream)
+    service.initialize(root)
+
+    val a = (root \\ "actionList" \ "action")(0)
+    action = new Action(a, service)
+  }
+
+  @Test def shouldBeAbleToCreateASoapMessage() {
+    val msg = action.createSoapMessage(("InstanceID", "0"))
+    assertThat(msg.getHeader).isEqualTo("urn:schemas-upnp-org:service:AVTransport:1#GetCurrentTransportActions")
+  }
+
+  @Test(expectedExceptions = Array(classOf[IllegalArgumentException]))
+  def shouldRequireInArgsWhenCreatingASoapMessage() {
+    action.createSoapMessage()
   }
 
   @Test
