@@ -1,5 +1,6 @@
 package org.airpnp.upnp	
 
+import scala.collection.JavaConversions._
 import javax.xml.soap.MessageFactory
 import javax.xml.transform.TransformerFactory
 import java.io.StringWriter
@@ -24,7 +25,7 @@ class SoapMessage private (private val serviceTypeIn: String, private val nameIn
 	    val soapEnvelope = soapPart.getEnvelope
 
 	    val soapBody = soapEnvelope.getBody
-	    val bodyElement = soapBody.getChildElements.next().asInstanceOf[SOAPElement]
+	    val bodyElement = soapBody.getChildElements.toSeq.filter(x => x.isInstanceOf[SOAPElement]).head.asInstanceOf[SOAPElement]
     	(soapPart, bodyElement, bodyElement.getNamespaceURI(), bodyElement.getLocalName)
     } else {
 	    val soapMessage = SoapMessage.messageFactory.createMessage
@@ -77,4 +78,6 @@ class SoapMessage private (private val serviceTypeIn: String, private val nameIn
     SoapMessage.xform.transform(source, result)
     writer.toString
   }
+
+  def isFault() = getName == "Fault"
 }
