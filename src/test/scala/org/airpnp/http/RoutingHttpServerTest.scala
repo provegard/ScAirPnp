@@ -43,7 +43,7 @@ class RoutingHttpServerTest {
   @Test(expectedExceptions = Array(classOf[IOException]), expectedExceptionsMessageRegExp = ".*response code: 400.*")
   def shouldBePossibleToRespondWithOtherCodes(): Unit = {
     server.addRoute("/somewhere", new RouteHandler() {
-      override def handleGET(request: Request, response: Response) = response.respond(400, "text/plain", "Bad request")
+      override def handleGET(request: Request, response: Response) = response.respond("Bad request", 400)
     })
     server.start
     openUrl("/somewhere")
@@ -53,7 +53,7 @@ class RoutingHttpServerTest {
   def shouldRespondWithMethodNotAllowedIfMethodNotHandled(): Unit = {
     server.addRoute("/somewhere", new RouteHandler() {})
     server.start
-    openUrl("/somewhere")
+	openUrl("/somewhere")
   }
 
   @Test

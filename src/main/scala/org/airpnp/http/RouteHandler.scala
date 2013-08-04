@@ -6,7 +6,6 @@ abstract class RouteHandler {
   protected[http] def handlePUT(request: Request, response: Response) = handleUnknown(request, response)
 
   protected[http] def handleUnknown(request: Request, response: Response) = {
-    val data = "Unknown request method."
-    response.respond(405, "text/plain", data)
+    response.respond("Unknown request method.", 405)
   }
 }
