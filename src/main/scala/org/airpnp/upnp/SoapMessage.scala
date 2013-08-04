@@ -46,8 +46,9 @@ class SoapMessage private (private val serviceTypeIn: String, private val nameIn
   def this(serviceType: String, name: String) = this(serviceType, name, null)
   def this(is: InputStream) = this(null, null, is)
 
-  def getName(): String = name
-  def getHeader(): String = serviceType + "#" + getName()
+  def getServiceType() = serviceType
+  def getName() = name
+  def getHeader() = serviceType + "#" + name
 
   def getArgument(name: String, defaultValue: String): String = {
     val elems = bodyElement.getElementsByTagName(name)
