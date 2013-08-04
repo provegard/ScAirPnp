@@ -28,4 +28,6 @@ class Request(private val he: HttpExchange) {
     if (result == null) List.empty else result.toList
   }
   def getArgument(name: String) = queryMap.getOrElse(name, Seq.empty)
+  
+  def getMethod() = he.getRequestMethod
 }
