@@ -13,5 +13,5 @@ object SoapError {
   }
 }
 
-class SoapError private(val code: Int, val description: String) {
+class SoapError private(val code: Int, val description: String) extends RuntimeException(description) {
 }
