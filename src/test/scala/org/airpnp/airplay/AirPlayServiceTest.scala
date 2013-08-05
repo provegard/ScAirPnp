@@ -1,18 +1,20 @@
 package org.airpnp.airplay
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.future
 import org.testng.annotations.Test
 import java.io.InputStream
 import java.net.InetAddress
 
 private class FakeAirPlayDevice(private val name: String, private val udn: String) extends BaseAirPlayDevice(name, udn) {
-  def getScrub() = new DurationAndPosition(0, 0)
-  def isPlaying() = false
-  def setScrub(position: Double) = ()
-  def play(location: String, position: Double) = ()
-  def stop() = ()
-  def showPhoto(data: InputStream, transition: String) = ()
-  def setRate(rate: Double) = ()
-  def setProperty(name: String, value: Any) = ()
+  def getScrub() = future { new DurationAndPosition(0, 0) }
+  def isPlaying() = future { false }
+  def setScrub(position: Double) = future { () }
+  def play(location: String, position: Double) = future { () }
+  def stop() = future { () }
+  def showPhoto(data: InputStream, transition: String) = future { () }
+  def setRate(rate: Double) = future { () }
+  def setProperty(name: String, value: Any) = future { () }
 }
 
 class AirPlayServiceTest {

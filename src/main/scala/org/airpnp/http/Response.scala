@@ -10,7 +10,7 @@ class Response(private val he: HttpExchange) {
   }
 
   def respondRaw(data: Array[Byte], code: Int = 200, contentType: String = "text/plain", chunked: Boolean = false) {
-    doRespond(data, code, contentType + "; charset=utf-8", chunked)
+    doRespond(data, code, contentType, chunked)
   }
 
   private def doRespond(data: Array[Byte], code: Int, contentType: String, chunked: Boolean) {

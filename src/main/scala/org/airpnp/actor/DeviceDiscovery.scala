@@ -10,10 +10,6 @@ import org.airpnp.upnp.MSearchRequest
 import java.net.SocketTimeoutException
 import org.airpnp.upnp.UPnPMessage
 
-case object CheckLiveness
-case object DoDiscovery
-case class DeviceFound(val udn: String, val location: String)
-
 object DeviceDiscovery {
   private val MX = 3
   private val EXTRA_WAIT_TIME = 500l
@@ -26,8 +22,8 @@ class DeviceDiscovery extends Actor with Logging {
       react {
         case DoDiscovery => doDiscovery
         case Stop => {
-          trace("Device discovery was stopped.")
-          sender ! Stopping
+          debug("Device discovery was stopped.")
+          sender ! Stopped
           exit
         }
       }
@@ -36,14 +32,9 @@ class DeviceDiscovery extends Actor with Logging {
 
   private def doDiscovery() = {
     sendMSearch("upnp:rootdevice", p => {
-      val data = new String(p.getData(), 0, p.getLength())
-      val msg = new UPnPMessage(data)
-      msg.getLocation match {
-        case Some(loc) => msg.getUdn match {
-          case Some(udn) => sender ! DeviceFound(udn, loc)
-          case None => // ignore
-        }
-        case None => // ignore
+      val msg = new UPnPMessage(p)
+      if (msg.isBuildable) {
+        sender ! DeviceFound(msg.getUdn.get, msg.getLocation.get)
       }
     })
   }
@@ -51,7 +42,6 @@ class DeviceDiscovery extends Actor with Logging {
   private def sendMSearch(st: String, handler: DatagramPacket => Unit) = {
     val s = new DatagramSocket
     try {
-      // DatagramSocket s = new DatagramSocket();
       val upnpAddress = UPNP.getUPNPAddress
 
       val msg = new MSearchRequest(st, DeviceDiscovery.MX).toString.getBytes
@@ -63,6 +53,7 @@ class DeviceDiscovery extends Actor with Logging {
       +DeviceDiscovery.EXTRA_WAIT_TIME
       val buf = new Array[Byte](1024)
       var delay = endTime - System.currentTimeMillis
+      //TODO: Rewrite with NIO/non-blocking
       while (delay > 0) {
         s.setSoTimeout(delay.asInstanceOf[Int]);
         val incoming = new DatagramPacket(buf, buf.length)
@@ -79,13 +70,4 @@ class DeviceDiscovery extends Actor with Logging {
       s.close
     }
   }
-  //
-  //    @Override
-  //    public void interceptReceive(DatagramPacket packet) {
-  //        PacketEvent event = new PacketEvent(packet, "intercepted");
-  //        if (event.getMessage().isNotification()) {
-  //            eventCoordinator.publish(event);
-  //        }
-  //    }
-
 }

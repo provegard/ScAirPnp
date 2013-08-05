@@ -1,5 +1,7 @@
 package org.airpnp.airplay.protocol
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.future
 import org.airpnp.http.HttpTestUtil._
 import org.testng.annotations.BeforeClass
 import org.fest.assertions.Assertions.assertThat
@@ -41,7 +43,8 @@ class AirPlayHttpServerTest {
   @Test
   def shouldQueryScrubAndPlayStatusWhenPlaybackInfoIsRequested(): Unit = {
     // Stub it to avoid NPE...
-    stub(apDevice.getScrub).toReturn(new DurationAndPosition(0, 0))
+    stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(0, 0) })
+    stub(apDevice.isPlaying).toReturn(future { false })
 
     closeConn(openUrl("/playback-info"))
 
@@ -52,7 +55,8 @@ class AirPlayHttpServerTest {
   @Test
   def shouldUseCorrectResponseContentTypeForPlaybackInfo(): Unit = {
     // Stub it to avoid NPE...
-    stub(apDevice.getScrub).toReturn(new DurationAndPosition(0, 0))
+    stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(0, 0) })
+    stub(apDevice.isPlaying).toReturn(future { false })
 
     val conn = openUrl("/playback-info")
     conn.connect
@@ -72,7 +76,7 @@ class AirPlayHttpServerTest {
   @Test
   def shouldQueryScrubWhenScrubIsRequested(): Unit = {
     // Stub it to avoid NPE...
-    stub(apDevice.getScrub).toReturn(new DurationAndPosition(0, 0))
+    stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(0, 0) })
 
     closeConn(openUrl("/scrub"))
 
@@ -82,7 +86,7 @@ class AirPlayHttpServerTest {
   @Test
   def shouldReturnDurationAndPositionWhenScrubIsRequested(): Unit = {
     // Stub it to avoid NPE...
-    stub(apDevice.getScrub).toReturn(new DurationAndPosition(2, 1))
+    stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(2, 1) })
 
     val is = openUrlForReading("/scrub", port)
     val data = readAllAndClose(is)
@@ -92,6 +96,9 @@ class AirPlayHttpServerTest {
 
   @Test
   def shouldCallScrubWhenScrubIsPosted(): Unit = {
+    // Avoid NPE
+    stub(apDevice.setScrub(anyDouble())).toReturn(future {})
+
     closeConn(postDataToUrl("/scrub?position=1.0", port, null, new Array[Byte](0)))
 
     verify(apDevice).setScrub(1.0)
@@ -99,6 +106,9 @@ class AirPlayHttpServerTest {
 
   @Test
   def shouldCallRateWhenRateIsPosted(): Unit = {
+    // Avoid NPE
+    stub(apDevice.setRate(anyDouble())).toReturn(future {})
+
     closeConn(postDataToUrl("/rate?value=1.0", port, null, new Array[Byte](0)))
 
     verify(apDevice).setRate(1.0)
@@ -136,6 +146,9 @@ class AirPlayHttpServerTest {
 
   @Test
   def shouldCallPlayWhenPlayDataArePosted(): Unit = {
+    // Avoid NPE
+    stub(apDevice.play(anyString(), anyDouble())).toReturn(future {})
+
     val data = "Start-Position: 1.0\nContent-Location: http://localhost/test"
     closeConn(postDataToUrl("/play", port, null, data.getBytes))
 
@@ -144,6 +157,9 @@ class AirPlayHttpServerTest {
 
   @Test
   def shouldCallPlayWhenPlayDataWithoutPositionArePosted(): Unit = {
+    // Avoid NPE
+    stub(apDevice.play(anyString(), anyDouble())).toReturn(future {})
+
     val data = "Content-Location: http://localhost/test"
     closeConn(postDataToUrl("/play", port, null, data.getBytes))
 
@@ -152,6 +168,9 @@ class AirPlayHttpServerTest {
 
   @Test
   def shouldCallPlayWhenBinaryPlayDataArePosted(): Unit = {
+    // Avoid NPE
+    stub(apDevice.play(anyString(), anyDouble())).toReturn(future {})
+
     val is = getClass.getResourceAsStream("/org/airpnp/plist/airplay.bin")
     val data = readAllBytesAndClose(is)
 
@@ -163,13 +182,15 @@ class AirPlayHttpServerTest {
 
   @Test
   def shouldCallSetPropertyWhenBinaryPropertyDataArePut(): Unit = {
+    // Avoid NPE
+    stub(apDevice.setProperty(anyString(), anyObject())).toReturn(future {})
 
     val bindata = "bplist00\u00d1\u0001\u0002Uvalue\u00d4\u0003\u0004\u0005\u0006\u0007\u0007\u0007\u0007YtimescaleUvalueUepochUflags\u0010\u0000\u0008\u000b\u0011\u001a$*06\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u00008".getBytes
     val conn = putDataToUrl("/setProperty?forwardEndTime", port, "application/x-apple-binary-plist", bindata)
     closeConn(conn)
 
     verify(apDevice).setProperty(Matchers.eq("forwardEndTime"), argThat(new BaseMatcher[Object]() {
-      override def matches(arg0: Object) = arg0.asInstanceOf[Map[String,_]].contains("epoch")
+      override def matches(arg0: Object) = arg0.asInstanceOf[Map[String, _]].contains("epoch")
       override def describeTo(arg0: Description) = arg0.appendText("map that contains the correct key")
     }))
   }

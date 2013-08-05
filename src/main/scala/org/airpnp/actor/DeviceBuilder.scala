@@ -6,10 +6,6 @@ import scala.xml.Node
 import org.airpnp.upnp.Device
 import org.airpnp.Logging
 
-case class Build(val udn: String, val location: String)
-case class DeviceShouldBeIgnored(val udn: String, val reason: String)
-case class DeviceReady(val device: Device)
-
 class DeviceBuilder(private val download: String => Node) extends Actor with Logging {
 
   //TODO: Find a better way to reference this info in exceptionHandler
@@ -41,8 +37,8 @@ class DeviceBuilder(private val download: String => Node) extends Actor with Log
           }
         }
         case Stop => {
-          trace("Device builder was stopped.")
-          sender ! Stopping
+          debug("Device builder was stopped.")
+          sender ! Stopped
           exit
         }
       }
