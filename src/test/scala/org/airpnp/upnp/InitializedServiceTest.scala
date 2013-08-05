@@ -11,7 +11,7 @@ class InitializedServiceTest {
   private var service: Service = null
 
   @BeforeClass
-  def createService(): Unit = {
+  def createService() {
     var stream = getClass.getResourceAsStream("mediarenderer/root.xml")
     var root = XML.load(stream)
     val device = new Device(root, "http://www.base.com")
@@ -23,17 +23,17 @@ class InitializedServiceTest {
   }
 
   @Test
-  def shouldExposeServiceType(): Unit = {
+  def shouldExposeServiceType() {
     assertThat(service.getServiceType).isEqualTo("urn:schemas-upnp-org:service:AVTransport:1")
   }
 
   @Test
-  def shouldExposeServiceId(): Unit = {
+  def shouldExposeServiceId() {
     assertThat(service.getServiceId).isEqualTo("urn:upnp-org:serviceId:AVTransport")
   }
 
   @Test
-  def shouldExposeSCPDURLWithBaseUrl(): Unit = {
+  def shouldExposeSCPDURLWithBaseUrl() {
     assertThat(service.getSCPDURL).startsWith("http://www.base.com/service")
   }
 
@@ -49,14 +49,14 @@ class InitializedServiceTest {
   //  }
   //  
   //      @Test(dataProvider = "urlAttributes")
-  //      def shouldResolveUrlsAgainstBaseUrl(attrName: String): Unit = {
+  //      def shouldResolveUrlsAgainstBaseUrl(attrName: String) {
   //          // URLs are resolved using the base URL
   //          assertThat(service.attr(attrName)).startsWith(
   //                  "http://www.base.com/MediaRenderer_AVTransport/")
   //      }
 
   @Test
-  def shouldHaveActionsAfterInitialization(): Unit = {
+  def shouldHaveActionsAfterInitialization() {
     val a = service.action("GetCurrentTransportActions")
     assertThat(a.isDefined).isTrue
   }

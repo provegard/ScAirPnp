@@ -10,7 +10,7 @@ class SoapMessageParseTest {
   private var message: SoapMessage = null
 
   @BeforeClass
-  def createMessage(): Unit = {
+  def createMessage() {
     val orig = new SoapMessage("type", "action")
     orig.setArgument("foo", "bar\u1234")
     var is = new ByteArrayInputStream(orig.toString.getBytes("UTF-8"))

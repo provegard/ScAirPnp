@@ -12,26 +12,26 @@ class MSearchRequestTest {
     message = new UPnPMessage(new MSearchRequest("ssdp:all", 5).toString)
   }
 
-  @Test def shouldHaveMSearchMethod(): Unit = {
+  @Test def shouldHaveMSearchMethod() {
     assertThat(message.getMethod).isEqualTo("M-SEARCH")
   }
 
-  @Test def shouldBeDiscoveryMessage(): Unit = {
+  @Test def shouldBeDiscoveryMessage() {
     val man = message.getHeaders.get("MAN")
     assertThat(man).isEqualTo(Some("\"ssdp:discover\""))
   }
 
-  @Test def shouldHaveCorrectSTValue(): Unit = {
+  @Test def shouldHaveCorrectSTValue() {
     val man = message.getHeaders.get("ST")
     assertThat(man).isEqualTo(Some("ssdp:all"))
   }
 
-  @Test def shouldHaveCorrectMXValue(): Unit = {
+  @Test def shouldHaveCorrectMXValue() {
     val man = message.getHeaders.get("MX")
     assertThat(man).isEqualTo(Some("5"))
   }
 
-  @Test def shouldHaveCorrectHost(): Unit = {
+  @Test def shouldHaveCorrectHost() {
     val man = message.getHeaders.get("HOST")
     assertThat(man).isEqualTo(Some("239.255.255.250:1900"))
   }

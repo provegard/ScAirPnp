@@ -8,23 +8,23 @@ import java.net.DatagramSocket
 import java.net.MulticastSocket
 
 class InterceptingDatagramSocketImplFactoryTest {
-  @BeforeClass def installFactory(): Unit = {
+  @BeforeClass def installFactory() {
     InterceptingDatagramSocketImplFactory.install(p => {})
   }
   
-  @Test def shouldCreateCorrectImplObject(): Unit = {
+  @Test def shouldCreateCorrectImplObject() {
     val socket = new DatagramSocket()
     val impl = socket.call("getImpl")
     assertThat(impl).isInstanceOf(classOf[InterceptingDatagramSocketImpl])
   }
   
-  @Test def shouldDetectUnicastDatagramSocket(): Unit = {
+  @Test def shouldDetectUnicastDatagramSocket() {
     val socket = new DatagramSocket()
     val impl = socket.call("getImpl").asInstanceOf[InterceptingDatagramSocketImpl]
     assertThat(impl.isMulticast).isFalse()
   }
 
-  @Test def shouldDetectMulticastDatagramSocket(): Unit = {
+  @Test def shouldDetectMulticastDatagramSocket() {
     val socket = new MulticastSocket()
     val impl = socket.call("getImpl").asInstanceOf[InterceptingDatagramSocketImpl]
     assertThat(impl.isMulticast).isTrue()

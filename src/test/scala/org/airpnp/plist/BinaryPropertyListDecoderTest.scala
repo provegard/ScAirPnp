@@ -11,13 +11,13 @@ import java.util.Calendar
 
 class BinaryPropertyListDecoderTest {
   @Test(expectedExceptions = scala.Array(classOf[PropertyListFormatException]))
-  def shouldThrowOnInvalidSignature(): Unit = {
+  def shouldThrowOnInvalidSignature() {
     val is = new ByteArrayInputStream("hello world".getBytes())
     new BinaryPropertyListDecoder(is).decode()
   }
 
   @Test
-  def shouldDecodeSetPropertyPlist(): Unit = {
+  def shouldDecodeSetPropertyPlist() {
     val data = "bplist00\u00d1\u0001\u0002Uvalue\u00d4\u0003\u0004\u0005\u0006\u0007\u0007\u0007\u0007YtimescaleUvalueUepochUflags\u0010\u0000\u0008\u000b\u0011\u001a$*06\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0008\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u00008"
     val is = new ByteArrayInputStream(data.getBytes())
     val plist = new BinaryPropertyListDecoder(is).decode()
@@ -48,7 +48,7 @@ class BinaryPropertyListDecoderTest {
   }
 
   @Test(dataProvider = "binaryData")
-  def shouldDecodeBinary(file: java.lang.String, expected: AnyRef): Unit = {
+  def shouldDecodeBinary(file: java.lang.String, expected: AnyRef) {
     val is = getClass().getResourceAsStream(file)
     val plist = new BinaryPropertyListDecoder(is).decode()
     assertThat(plist.root.getValue).isEqualTo(expected)
@@ -56,7 +56,7 @@ class BinaryPropertyListDecoderTest {
 
   
   @Test
-  def shouldDecodeBinaryData(): Unit = {
+  def shouldDecodeBinaryData() {
     val is = getClass().getResourceAsStream("data.bin")
     val plist = new BinaryPropertyListDecoder(is).decode()
     val arr = plist.root.asInstanceOf[Data].getValue.toArray
@@ -64,7 +64,7 @@ class BinaryPropertyListDecoderTest {
   }
 
   @Test
-  def shouldDecodeBinaryArray(): Unit = {
+  def shouldDecodeBinaryArray() {
     val is = getClass().getResourceAsStream("array.bin")
     val plist = new BinaryPropertyListDecoder(is).decode()
     val arr = plist.root.asInstanceOf[Array].getValue
@@ -75,7 +75,7 @@ class BinaryPropertyListDecoderTest {
   }
 
   @Test
-  def shouldDecodeBinarySet(): Unit = {
+  def shouldDecodeBinarySet() {
     val is = getClass().getResourceAsStream("set.bin")
     val plist = new BinaryPropertyListDecoder(is).decode()
     val arr = plist.root.asInstanceOf[Array].getValue
@@ -86,7 +86,7 @@ class BinaryPropertyListDecoderTest {
   }
 
   @Test
-  def shouldDecodeBinaryDict(): Unit = {
+  def shouldDecodeBinaryDict() {
     val expected = Map(("Content-Location", "http://v9.lscache4.googlevideo.com/videoplayback?id=3eac4bbd43c31217&itag=18&uaopt=no-save&el=related&client=ytapi-apple-iphone&devKey=AdW2Kh1KB1Jkhso4mAT4nHgO88HsQjpE1a8d1GxQnGDm&app=youtube_gdata&ip=0.0.0.0&ipbits=0&expire=1313568456&sparams=id,itag,uaopt,ip,ipbits,expire&signature=625BB56F7EF7AB65ED34C5D2B09539AA90B4F6B4.4227E5A20028E6F86621FAB7F15827A79E31C9EE&key=yta1"),
       ("Start-Position", 0.0005364880198612809d))
 

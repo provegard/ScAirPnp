@@ -10,14 +10,14 @@ class PrinterDeviceTest {
   private var device: Device = null
 
   @BeforeClass
-  def createDevice(): Unit = {
+  def createDevice() {
     val stream = getClass.getResourceAsStream("printer/root.xml")
     val elem = XML.load(stream)
     device = new Device(elem, "http://www.base.com")
   }
 
   @Test
-  def shouldNotBeMediaRenderer(): Unit = {
+  def shouldNotBeMediaRenderer() {
     assertThat(device.isMediaRenderer).isFalse
   }
 }

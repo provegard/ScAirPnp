@@ -11,7 +11,7 @@ class UninitializedServiceTest {
   private var service: Service = null
 
   @BeforeClass
-  def createService(): Unit = {
+  def createService() {
     var stream = getClass.getResourceAsStream("mediarenderer/root.xml")
     var root = XML.load(stream)
     val device = new Device(root, "http://www.base.com")
@@ -20,7 +20,7 @@ class UninitializedServiceTest {
   }
 
   @Test
-  def shouldNotHaveActions(): Unit = {
+  def shouldNotHaveActions() {
     val a = service.action("GetCurrentTransportActions")
     assertThat(a).isEqualTo(None)
   }

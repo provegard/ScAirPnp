@@ -20,7 +20,7 @@ private class FakeAirPlayDevice(private val name: String, private val udn: Strin
 class AirPlayServiceTest {
 
   @Test(groups = Array("Manual"))
-  def testRegisterAirPlayService(): Unit = {
+  def testRegisterAirPlayService() {
 
     val apDevice = new FakeAirPlayDevice("AirPlayServiceTest", "uuid:abcdefghijklmn")
 

@@ -39,7 +39,7 @@ private class ThrowingConstructorTarget {
 
 class DynamicTest {
   
-  @Test def shouldInvokePublicMethod(): Unit = {
+  @Test def shouldInvokePublicMethod() {
     val t = new Target
 
     t.call("publicMethod")
@@ -47,7 +47,7 @@ class DynamicTest {
     assertThat(t.publicCalls).isEqualTo(1)
   }
 
-  @Test def shouldInvokePrivateMethod(): Unit = {
+  @Test def shouldInvokePrivateMethod() {
     val t = new Target
 
     t.call("privateMethod")
@@ -55,7 +55,7 @@ class DynamicTest {
     assertThat(t.privateCalls).isEqualTo(1)
   }
   
-  @Test def shouldInvokeMethodBasedOnParameterTypes(): Unit = {
+  @Test def shouldInvokeMethodBasedOnParameterTypes() {
     val t = new Target
 
     t.call("methodWithArgs", classOf[Int], 42: java.lang.Integer)
@@ -63,7 +63,7 @@ class DynamicTest {
     assertThat(t.argType).isEqualTo("Int")
   }
   
-  @Test def shouldSupportReturnValue(): Unit = {
+  @Test def shouldSupportReturnValue() {
     val t = new Target
     val result = t.call("doubler", classOf[Int], 42: java.lang.Integer)
 
@@ -71,30 +71,30 @@ class DynamicTest {
   }
   
   @Test(expectedExceptions = Array(classOf[IOException]))
-  def shouldUnpackExceptions(): Unit = {
+  def shouldUnpackExceptions() {
     val t = new Target
     t.call("thrower")
   }
 
-  @Test def shouldCreateNewInstance(): Unit = {
+  @Test def shouldCreateNewInstance() {
     val t = classOf[Target]
     val inst: AnyRef = t.createNew;
     assertThat(inst).isInstanceOf(classOf[Target])
   }
 
-  @Test def shouldCreateNewInstanceWithPrivateConstructor(): Unit = {
+  @Test def shouldCreateNewInstanceWithPrivateConstructor() {
     val t = classOf[PrivateConstructorTarget]
     val inst: AnyRef = t.createNew;
     assertThat(inst).isInstanceOf(classOf[PrivateConstructorTarget])
   }
 
   @Test(expectedExceptions = Array(classOf[IOException]))
-  def shouldUnpackConstructorExceptions(): Unit = {
+  def shouldUnpackConstructorExceptions() {
     val t = classOf[ThrowingConstructorTarget]
     t.createNew;
   }
 
-  @Test def shouldInvokeStaticMethod(): Unit = {
+  @Test def shouldInvokeStaticMethod() {
     val t = classOf[Target]
 
     t.callStatic("staticMethod")
@@ -102,7 +102,7 @@ class DynamicTest {
     assertThat(Target.staticCalls).isEqualTo(1)
   }
 
-  @Test def shouldInvokeMethodInBaseClass(): Unit = {
+  @Test def shouldInvokeMethodInBaseClass() {
     val t = new Target
 
     t.call("baseMethod")
@@ -111,7 +111,7 @@ class DynamicTest {
   }
 
   @Test(expectedExceptions = Array(classOf[NoSuchMethodException]))
-  def shouldThrowWhenMethodIsNotFoundInClassChain(): Unit = {
+  def shouldThrowWhenMethodIsNotFoundInClassChain() {
     val t = new Target
 
     t.call("noSuchMethod")

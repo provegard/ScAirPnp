@@ -10,7 +10,7 @@ import org.testng.annotations.Test
 class PropertyListToXmlTest {
 
   @Test
-  def shouldGenerateProperXml(): Unit = {
+  def shouldGenerateProperXml() {
 
     val pairs = Seq(
       new KeyValue("deviceid", new String("abc")),

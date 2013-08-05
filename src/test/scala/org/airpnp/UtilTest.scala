@@ -9,7 +9,7 @@ import java.io.ByteArrayInputStream
 class UtilTest {
   class TestCreateDeviceId {
     @Test
-    def shouldCreateIdFromUuid(): Unit = {
+    def shouldCreateIdFromUuid() {
       val id = "uuid:f8ecf350-8691-4639-a735-c10ee6ad15c1"
       val did = Util.createDeviceId(id)
       assertThat(did.length).isEqualTo(17)
@@ -17,7 +17,7 @@ class UtilTest {
     }
 
     @Test
-    def shouldCreateIdFromNonUuid(): Unit = {
+    def shouldCreateIdFromNonUuid() {
       val id = "uuid:media_renderer_xyz"
       val did = Util.createDeviceId(id)
       assertThat(did.length).isEqualTo(17)
@@ -25,7 +25,7 @@ class UtilTest {
     }
 
     @Test
-    def shouldNotCreateRandomId(): Unit = {
+    def shouldNotCreateRandomId() {
       val id = "uuid:f8ecf350-8691-4639-a735-c10ee6ad15c1"
       val did1 = Util.createDeviceId(id)
       val did2 = Util.createDeviceId(id)
@@ -35,7 +35,7 @@ class UtilTest {
 
   class TestSplitUsn {
     @Test
-    def shouldSplitUsnWithUdnAndType(): Unit = {
+    def shouldSplitUsnWithUdnAndType() {
       val usn = "uuid:x::type"
       val parts = Util.splitUsn(usn)
 
@@ -43,7 +43,7 @@ class UtilTest {
     }
 
     @Test
-    def shouldSplitUsnWithoutType(): Unit = {
+    def shouldSplitUsnWithoutType() {
       val usn = "uuid:x"
       val parts = Util.splitUsn(usn)
 
@@ -80,7 +80,7 @@ class UtilTest {
 
     @Test(dataProvider = "serviceTypes")
     def shouldCheckServiceTypeCompatibility(required: String,
-      actual: String, expectedOutcome: Boolean): Unit = {
+      actual: String, expectedOutcome: Boolean) {
       val compat = Util.areServiceTypesCompatible(required, actual)
       assertThat(compat).isEqualTo(expectedOutcome)
     }
@@ -111,7 +111,7 @@ class UtilTest {
     }
 
     @Test(dataProvider = "maxAges")
-    def shouldGetMaxAge(key: String, value: String, expected: Int): Unit = {
+    def shouldGetMaxAge(key: String, value: String, expected: Int) {
       val headers = createHeaders(key, value)
       val maxAge = Util.getMaxAge(headers)
 
@@ -120,7 +120,7 @@ class UtilTest {
   }
 
   class TestReadAllBytes {
-    @Test def shouldReadAllBytesFromStream(): Unit = {
+    @Test def shouldReadAllBytesFromStream() {
       val bytes = "testing".getBytes
       var is = new ByteArrayInputStream(bytes)
       var result = Util.readAllBytes(is)

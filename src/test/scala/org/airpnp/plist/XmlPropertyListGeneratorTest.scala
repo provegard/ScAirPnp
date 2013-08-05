@@ -22,7 +22,7 @@ import org.w3c.dom.Node
 
 class XmlPropertyListGeneratorTest {
   @Test
-  def shouldCreateEnclosingPlistElement(): Unit = {
+  def shouldCreateEnclosingPlistElement() {
     val plist = new PropertyList(True.INSTANCE)
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -31,7 +31,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldAddVersionToEnclosingPlistElement(): Unit = {
+  def shouldAddVersionToEnclosingPlistElement() {
     val plist = new PropertyList(True.INSTANCE)
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -40,7 +40,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportTruePrimitive(): Unit = {
+  def shouldSupportTruePrimitive() {
     val plist = new PropertyList(True.INSTANCE)
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -49,7 +49,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportFalsePrimitive(): Unit = {
+  def shouldSupportFalsePrimitive() {
     val plist = new PropertyList(False.INSTANCE)
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -58,7 +58,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportIntegerPrimitive(): Unit = {
+  def shouldSupportIntegerPrimitive() {
     val plist = new PropertyList(new Integer(-42))
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -67,7 +67,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportStringPrimitive(): Unit = {
+  def shouldSupportStringPrimitive() {
     val plist = new PropertyList(new String("foo"))
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -76,7 +76,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportRealPrimitive(): Unit = {
+  def shouldSupportRealPrimitive() {
     val plist = new PropertyList(new Real(-3.14))
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -85,7 +85,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldUseExponentForBigRealPrimitive(): Unit = {
+  def shouldUseExponentForBigRealPrimitive() {
     val plist = new PropertyList(new Real(1.1e100))
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -94,7 +94,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportDatePrimitive(): Unit = {
+  def shouldSupportDatePrimitive() {
     val d = new GregorianCalendar(2013, 6, 22, 23, 56, 30).getTime()
     val plist = new PropertyList(new Date(d))
     val doc = new XmlPropertyListGenerator().generate(plist)
@@ -104,7 +104,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportDataPrimitive(): Unit = {
+  def shouldSupportDataPrimitive() {
     val plist = new PropertyList(new Data("foobar".getBytes()))
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -113,7 +113,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportArrayCollection(): Unit = {
+  def shouldSupportArrayCollection() {
     val plist = new PropertyList(new Array(True.INSTANCE, False.INSTANCE))
     val doc = new XmlPropertyListGenerator().generate(plist)
 
@@ -122,7 +122,7 @@ class XmlPropertyListGeneratorTest {
   }
 
   @Test
-  def shouldSupportDictCollection(): Unit = {
+  def shouldSupportDictCollection() {
     val pairs = Seq(
       new KeyValue("z", True.INSTANCE),
       new KeyValue("a", new Integer(42)))

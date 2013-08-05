@@ -16,7 +16,7 @@ trait PropertyListTester {
   protected def plist: PropertyList
 
   @Test(dataProvider = "dictOrder")
-  def shouldHaveCorrectDictKeysInOrder(path: String, expectedKeys: scala.Array[String]): Unit = {
+  def shouldHaveCorrectDictKeysInOrder(path: String, expectedKeys: scala.Array[String]) {
     val d = findObject(plist, path).asInstanceOf[Dict]
     val pairs = d.entries
     val keys = pairs.map(_.getKey).toArray
@@ -46,7 +46,7 @@ trait PropertyListTester {
   }
 
   @Test(dataProvider = "expectedData")
-  def shouldHaveCorrectDictValuesInOrder(path: String, expected: Object): Unit = {
+  def shouldHaveCorrectDictValuesInOrder(path: String, expected: Object) {
     val value = findObject(plist, path).getValue
     assertThat(value).isEqualTo(expected)
   }

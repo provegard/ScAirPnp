@@ -11,14 +11,14 @@ import org.fest.assertions.ObjectAssert
 
 class DeviceBuilderTest {
 
-  //  @Test def shouldBeStoppable(): Unit = {
+  //  @Test def shouldBeStoppable() {
   //    var db = new DeviceBuilder({ null })
   //    db.start()
   //    db !? Stop
   //    assertThat(db.getState).isEqualTo(Actor.State.Terminated)
   //  }
 
-  @Test def shouldBuildMediaRendererAndReturnDevice(): Unit = {
+  @Test def shouldBuildMediaRendererAndReturnDevice() {
     val db = new DeviceBuilder(Downloader.create())
     db.start()
     stopper(db) {
@@ -27,7 +27,7 @@ class DeviceBuilderTest {
     }
   }
 
-  @Test def shouldInitializeServicesForTheDevice(): Unit = {
+  @Test def shouldInitializeServicesForTheDevice() {
     val db = new DeviceBuilder(Downloader.create())
     db.start()
     stopper(db) {
@@ -37,7 +37,7 @@ class DeviceBuilderTest {
     }
   }
 
-  @Test def shouldIgnorePrinter(): Unit = {
+  @Test def shouldIgnorePrinter() {
     val db = new DeviceBuilder(Downloader.create())
     db.start()
     stopper(db) {
@@ -46,7 +46,7 @@ class DeviceBuilderTest {
     }
   }
 
-  @Test def shouldIgnorePrinterWithCorrectUdn(): Unit = {
+  @Test def shouldIgnorePrinterWithCorrectUdn() {
     val db = new DeviceBuilder(Downloader.create())
     db.start()
     stopper(db) {
@@ -56,7 +56,7 @@ class DeviceBuilderTest {
     }
   }
 
-  @Test def shouldIgnorePrinterWithReason(): Unit = {
+  @Test def shouldIgnorePrinterWithReason() {
     val db = new DeviceBuilder(Downloader.create())
     db.start()
     stopper(db) {
@@ -66,7 +66,7 @@ class DeviceBuilderTest {
     }
   }
 
-  @Test def shouldIgnoreDeviceWhenDownloadFails(): Unit = {
+  @Test def shouldIgnoreDeviceWhenDownloadFails() {
     val db = new DeviceBuilder(Downloader.create())
     db.start()
     stopper(db) {
@@ -75,7 +75,7 @@ class DeviceBuilderTest {
     }
   }
 
-  @Test def shouldIgnoreDeviceWhenDownloadFailsWithCorrectUdn(): Unit = {
+  @Test def shouldIgnoreDeviceWhenDownloadFailsWithCorrectUdn() {
     val db = new DeviceBuilder(Downloader.create())
     db.start()
     stopper(db) {
@@ -85,7 +85,7 @@ class DeviceBuilderTest {
     }
   }
 
-  @Test def shouldIgnoreDeviceWhenDownloadFailsWithReason(): Unit = {
+  @Test def shouldIgnoreDeviceWhenDownloadFailsWithReason() {
     val db = new DeviceBuilder(Downloader.create())
     db.start()
     stopper(db) {

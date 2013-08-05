@@ -59,7 +59,7 @@ class AirPnp extends ExternalListener with Logging {
 
   def name(): String = "AirPnp"
 
-  def shutdown(): Unit = {
+  def shutdown() {
     info("AirPnp plugin shutting down!")
     mdnsHost.stop()
     coordinator !? Stop

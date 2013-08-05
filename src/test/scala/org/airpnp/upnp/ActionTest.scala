@@ -9,7 +9,7 @@ class ActionTest {
   private var action: Action = null
 
   @BeforeClass
-  def createAction(): Unit = {
+  def createAction() {
     val deviceStream = getClass.getResourceAsStream("mediarenderer/root.xml")
     val device = new Device(XML.load(deviceStream), "http://base.com")
     val service = device.getServices.head
@@ -33,17 +33,17 @@ class ActionTest {
   }
 
   @Test
-  def shouldHaveAName(): Unit = {
+  def shouldHaveAName() {
     assertThat(action.getName).isEqualTo("GetCurrentTransportActions")
   }
 
   @Test
-  def shouldHaveInputArguments(): Unit = {
+  def shouldHaveInputArguments() {
     assertThat(action.inputArguments).isEqualTo(Seq("InstanceID"))
   }
 
   @Test
-  def shouldHaveOutputArguments(): Unit = {
+  def shouldHaveOutputArguments() {
     assertThat(action.outputArguments).isEqualTo(Seq("Actions"))
   }
 }

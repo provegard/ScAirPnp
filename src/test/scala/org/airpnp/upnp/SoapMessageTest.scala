@@ -10,12 +10,12 @@ class SoapMessageTest {
   private var message: SoapMessage = null
 
   @BeforeMethod
-  def createMessage(): Unit = {
+  def createMessage() {
     message = new SoapMessage("type", "action")
   }
 
   @Test
-  def shouldHaveAName(): Unit = {
+  def shouldHaveAName() {
     assertThat(message.getName()).isEqualTo("action")
   }
 
@@ -24,41 +24,41 @@ class SoapMessageTest {
   }
 
   @Test
-  def shouldBeAbleToConstructAHeader(): Unit = {
+  def shouldBeAbleToConstructAHeader() {
     assertThat(message.getHeader()).isEqualTo("type#action")
   }
 
   @Test
-  def shouldReturnDefaultValueForMissingArgument(): Unit = {
+  def shouldReturnDefaultValueForMissingArgument() {
     assertThat(message.getArgument("foo", "dflt")).isEqualTo("dflt")
   }
 
   @Test
-  def shouldBeAbleToSetArgument(): Unit = {
+  def shouldBeAbleToSetArgument() {
     message.setArgument("foo", "bar")
     assertThat(message.getArgument("foo", "dflt")).isEqualTo("bar")
   }
 
   @Test
-  def shouldBeAbleToModifyAnArgument(): Unit = {
+  def shouldBeAbleToModifyAnArgument() {
     message.setArgument("foo", "bar")
     message.setArgument("foo", "baz")
     assertThat(message.getArgument("foo", "dflt")).isEqualTo("baz")
   }
   @Test
-  def shouldBeAbleToDeleteArgument(): Unit = {
+  def shouldBeAbleToDeleteArgument() {
     message.setArgument("foo", "bar")
     message.deleteArgument("foo")
     assertThat(message.getArgument("foo", "dflt")).isEqualTo("dflt")
   }
 
   @Test(expectedExceptions = Array(classOf[IllegalArgumentException]))
-  def shouldThrowIfArgumentDoesntExistWhenTryingToDelete(): Unit = {
+  def shouldThrowIfArgumentDoesntExistWhenTryingToDelete() {
     message.deleteArgument("foo")
   }
 
   @Test
-  def shouldBeAbleToCreateStringRepresentation(): Unit = {
+  def shouldBeAbleToCreateStringRepresentation() {
     val rep = message.toString
     assertThat(rep).contains("<u:action")
   }

@@ -30,7 +30,7 @@ class RoutingHttpServerTest {
   def cleanup() = server.stop(0)
 
   @Test
-  def shouldHandleSimpleGet(): Unit = {
+  def shouldHandleSimpleGet() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) = response.respond("success")
     })
@@ -41,7 +41,7 @@ class RoutingHttpServerTest {
   }
 
   @Test(expectedExceptions = Array(classOf[IOException]), expectedExceptionsMessageRegExp = ".*response code: 400.*")
-  def shouldBePossibleToRespondWithOtherCodes(): Unit = {
+  def shouldBePossibleToRespondWithOtherCodes() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) = response.respond("Bad request", 400)
     })
@@ -50,14 +50,14 @@ class RoutingHttpServerTest {
   }
 
   @Test(expectedExceptions = Array(classOf[IOException]), expectedExceptionsMessageRegExp = ".*response code: 405.*")
-  def shouldRespondWithMethodNotAllowedIfMethodNotHandled(): Unit = {
+  def shouldRespondWithMethodNotAllowedIfMethodNotHandled() {
     server.addRoute("/somewhere", new RouteHandler() {})
     server.start
 	openUrl("/somewhere")
   }
 
   @Test
-  def shouldSupportPost(): Unit = {
+  def shouldSupportPost() {
     server.addRoute("/reverse", new RouteHandler() {
       override def handlePOST(request: Request, response: Response) {
         val data = readAllAndClose(request.getInputStream())
@@ -74,7 +74,7 @@ class RoutingHttpServerTest {
   }
 
   @Test
-  def shouldParseQueryString(): Unit = {
+  def shouldParseQueryString() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) =
         response.respond(request.getArgument("foo").head)
@@ -86,7 +86,7 @@ class RoutingHttpServerTest {
   }
 
   @Test
-  def shouldSupportUnnamedArgsInQueryString(): Unit = {
+  def shouldSupportUnnamedArgsInQueryString() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) =
         response.respond(request.getArgument("").head)
@@ -98,13 +98,13 @@ class RoutingHttpServerTest {
   }
 
   @Test(expectedExceptions = Array(classOf[FileNotFoundException]))
-  def shouldReturnNotFoundWhenRouteIsntFound(): Unit = {
+  def shouldReturnNotFoundWhenRouteIsntFound() {
     server.start
     openUrl("/somewhere")
   }
 
   @Test
-  def shouldSupportQueryingArgThatDoesntExist(): Unit = {
+  def shouldSupportQueryingArgThatDoesntExist() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) =
         response.respond("" + request.getArgument("foo").length)
@@ -116,7 +116,7 @@ class RoutingHttpServerTest {
   }
 
   @Test
-  def shouldSupportQueryingHeaderThatDoesntExist(): Unit = {
+  def shouldSupportQueryingHeaderThatDoesntExist() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) =
         response.respond("" + request.getHeader("X-Foo").size)

@@ -41,7 +41,7 @@ class AirPlayHttpServerTest {
   @AfterClass def cleanup() = server.stop(0)
 
   @Test
-  def shouldQueryScrubAndPlayStatusWhenPlaybackInfoIsRequested(): Unit = {
+  def shouldQueryScrubAndPlayStatusWhenPlaybackInfoIsRequested() {
     // Stub it to avoid NPE...
     stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(0, 0) })
     stub(apDevice.isPlaying).toReturn(future { false })
@@ -53,7 +53,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldUseCorrectResponseContentTypeForPlaybackInfo(): Unit = {
+  def shouldUseCorrectResponseContentTypeForPlaybackInfo() {
     // Stub it to avoid NPE...
     stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(0, 0) })
     stub(apDevice.isPlaying).toReturn(future { false })
@@ -67,14 +67,14 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldCallStopWhenStopIsPosted(): Unit = {
+  def shouldCallStopWhenStopIsPosted() {
     closeConn(postDataToUrl("/stop", port, null, new Array[Byte](0)))
 
     verify(apDevice).stop
   }
 
   @Test
-  def shouldQueryScrubWhenScrubIsRequested(): Unit = {
+  def shouldQueryScrubWhenScrubIsRequested() {
     // Stub it to avoid NPE...
     stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(0, 0) })
 
@@ -84,7 +84,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldReturnDurationAndPositionWhenScrubIsRequested(): Unit = {
+  def shouldReturnDurationAndPositionWhenScrubIsRequested() {
     // Stub it to avoid NPE...
     stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(2, 1) })
 
@@ -95,7 +95,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldCallScrubWhenScrubIsPosted(): Unit = {
+  def shouldCallScrubWhenScrubIsPosted() {
     // Avoid NPE
     stub(apDevice.setScrub(anyDouble())).toReturn(future {})
 
@@ -105,7 +105,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldCallRateWhenRateIsPosted(): Unit = {
+  def shouldCallRateWhenRateIsPosted() {
     // Avoid NPE
     stub(apDevice.setRate(anyDouble())).toReturn(future {})
 
@@ -115,7 +115,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldUseCorrectResponseContentTypeForServerInfo(): Unit = {
+  def shouldUseCorrectResponseContentTypeForServerInfo() {
     val conn = openUrl("/server-info")
     conn.connect
 
@@ -125,7 +125,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldReturnCorrectDataForForServerInfo(): Unit = {
+  def shouldReturnCorrectDataForForServerInfo() {
     stub(apDevice.getDeviceId).toReturn("fooid")
 
     val is = openUrlForReading("/server-info", port)
@@ -145,7 +145,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldCallPlayWhenPlayDataArePosted(): Unit = {
+  def shouldCallPlayWhenPlayDataArePosted() {
     // Avoid NPE
     stub(apDevice.play(anyString(), anyDouble())).toReturn(future {})
 
@@ -156,7 +156,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldCallPlayWhenPlayDataWithoutPositionArePosted(): Unit = {
+  def shouldCallPlayWhenPlayDataWithoutPositionArePosted() {
     // Avoid NPE
     stub(apDevice.play(anyString(), anyDouble())).toReturn(future {})
 
@@ -167,7 +167,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldCallPlayWhenBinaryPlayDataArePosted(): Unit = {
+  def shouldCallPlayWhenBinaryPlayDataArePosted() {
     // Avoid NPE
     stub(apDevice.play(anyString(), anyDouble())).toReturn(future {})
 
@@ -181,7 +181,7 @@ class AirPlayHttpServerTest {
   }
 
   @Test
-  def shouldCallSetPropertyWhenBinaryPropertyDataArePut(): Unit = {
+  def shouldCallSetPropertyWhenBinaryPropertyDataArePut() {
     // Avoid NPE
     stub(apDevice.setProperty(anyString(), anyObject())).toReturn(future {})
 
@@ -196,7 +196,7 @@ class AirPlayHttpServerTest {
   }
 
   //    @Test
-  //    def shouldCallShowPhotoWhenPhotoIsPut(): Unit = {
+  //    def shouldCallShowPhotoWhenPhotoIsPut() {
   //        InputStream is = getClass().getResourceAsStream("pixel.jpg")
   //        byte[] photo = readAllBytesAndClose(is)
   //        
@@ -207,7 +207,7 @@ class AirPlayHttpServerTest {
   //    }
   //    
   //    @Test
-  //    def shouldUseTransitionHeaderWhenPhotoIsPut(): Unit = {
+  //    def shouldUseTransitionHeaderWhenPhotoIsPut() {
   //        InputStream is = getClass().getResourceAsStream("pixel.jpg")
   //        byte[] photo = readAllBytesAndClose(is)
   //        
