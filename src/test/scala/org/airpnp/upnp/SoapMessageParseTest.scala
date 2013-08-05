@@ -12,8 +12,7 @@ class SoapMessageParseTest {
   @BeforeClass
   def createMessage(): Unit = {
     val orig = new SoapMessage("type", "action")
-    orig.setArgument("foo", "baråäö")
-    println(orig.toString)
+    orig.setArgument("foo", "bar\u1234")
     var is = new ByteArrayInputStream(orig.toString.getBytes("UTF-8"))
     message = SoapMessage.parse(is)
   }
@@ -30,7 +29,7 @@ class SoapMessageParseTest {
 
   @Test
   def shouldParseArguments() {
-    assertThat(message.getArgument("foo", "")).isEqualTo("baråäö")
+    assertThat(message.getArgument("foo", "")).isEqualTo("bar\u1234")
   }
 
 }
