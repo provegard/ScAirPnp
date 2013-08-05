@@ -20,4 +20,5 @@ class Service(protected val start: Node, private val baseUrl: String) extends Xm
   }
   
   def getSCPDURL() = new URL(baseUrlUrl, text(_ \ "SCPDURL").get).toString
+  def getControlURL() = new URL(baseUrlUrl, text(_ \ "controlURL").get).toString
 }

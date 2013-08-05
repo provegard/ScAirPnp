@@ -37,6 +37,10 @@ class InitializedServiceTest {
     assertThat(service.getSCPDURL).startsWith("http://www.base.com/service")
   }
 
+  @Test def shouldExposeControlURLWithBaseUrl() {
+    assertThat(service.getControlURL).isEqualTo("http://www.base.com/MediaRenderer_AVTransport/control")
+  }
+
   //  @DataProvider
   //  def urlAttributes(): java.util.Iterator[Array[Object]] = {
   //    return List(Array[Object]("SCPDURL"),
