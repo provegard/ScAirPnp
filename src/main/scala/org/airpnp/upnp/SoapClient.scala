@@ -20,9 +20,7 @@ import java.io.ByteArrayInputStream
  */
 class SoapClient {
 
-  def sendMessage(url: String, message: SoapMessage): Future[SoapMessage] = future {
-    send(new URL(url), message)
-  }
+  def sendMessage(url: String, message: SoapMessage) = send(new URL(url), message)
 
   private def send(url: URL, message: SoapMessage, useMPost: Boolean = false): SoapMessage = {
     val socket = new Socket(InetAddress.getByName(url.getHost), url.getPort)

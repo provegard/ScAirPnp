@@ -1,29 +1,20 @@
 package org.airpnp.upnp
 
-import org.fest.assertions.Assertions.assertThat
-import scala.concurrent.ExecutionContext.Implicits.global
-import org.airpnp.http.RoutingHttpServer
+import java.io.StringWriter
 import java.net.InetSocketAddress
-import org.airpnp.http.RouteHandler
+
+import scala.xml.MinimizeMode
+import scala.xml.XML
+
+import org.airpnp.Util
 import org.airpnp.http.Request
 import org.airpnp.http.Response
-import scala.xml.XML
-import java.io.StringWriter
-import scala.xml.MinimizeMode
-import org.testng.annotations.Test
-import org.testng.annotations.BeforeClass
-import org.airpnp.Util
-import java.net.InetAddress
+import org.airpnp.http.RouteHandler
+import org.airpnp.http.RoutingHttpServer
+import org.fest.assertions.Assertions.assertThat
 import org.testng.annotations.AfterClass
-import scala.util.Success
-import scala.util.Failure
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration.MILLISECONDS
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import scala.concurrent.Future
-import java.util.concurrent.TimeoutException
+import org.testng.annotations.BeforeClass
+import org.testng.annotations.Test
 
 class SoapClientTest {
   var port: Int = 0
@@ -44,16 +35,14 @@ class SoapClientTest {
   @Test def shouldHandleRegularPost() {
     val msg = new SoapMessage("someType", "Baz")
     val client = new SoapClient()
-    val f = client.sendMessage(getUrl("/post"), msg)
-    val result = Await.result(f, Duration.create(500, MILLISECONDS))
+    val result = client.sendMessage(getUrl("/post"), msg)
     assertThat(result.getName).isEqualTo("BazReply")
   }
 
   @Test def shouldFallbackToMPost() {
     val msg = new SoapMessage("someType", "Baz")
     val client = new SoapClient()
-    val f = client.sendMessage(getUrl("/mpost"), msg)
-    val result = Await.result(f, Duration(500, MILLISECONDS))
+    val result = client.sendMessage(getUrl("/mpost"), msg)
     assertThat(result.getName).isEqualTo("BazReply")
   }
 
@@ -61,15 +50,13 @@ class SoapClientTest {
   def shouldParseAndThrowSoapError() {
     val msg = new SoapMessage("someType", "Baz")
     val client = new SoapClient()
-    val f = client.sendMessage(getUrl("/err"), msg)
-    Await.result(f, Duration.create(500, MILLISECONDS))
+    client.sendMessage(getUrl("/err"), msg)
   }
 
   @Test def shouldSupportChunkedTransferEncoding() {
     val msg = new SoapMessage("someType", "Baz")
     val client = new SoapClient()
-    val f = client.sendMessage(getUrl("/chunked"), msg)
-    val result = Await.result(f, Duration.create(500, MILLISECONDS))
+    val result = client.sendMessage(getUrl("/chunked"), msg)
     assertThat(result.getName).isEqualTo("BazReply")
   }
 }
