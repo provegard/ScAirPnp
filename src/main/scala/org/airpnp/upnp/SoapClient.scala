@@ -24,6 +24,7 @@ class SoapClient {
 
   private def send(url: URL, message: SoapMessage, useMPost: Boolean = false): SoapMessage = {
     val socket = new Socket(InetAddress.getByName(url.getHost), url.getPort)
+    socket.setSoTimeout(2000) //TODO: Investigate suitable timeout
     try {
       val data = message.toString.getBytes("UTF-8")
       val headers = new MutableList[(String, String)]()
