@@ -26,7 +26,7 @@ class AirPlayServiceTest {
 
     println("Setting up the AirPlay service...")
     var service: AirPlayService = null
-    val host = new MDnsServiceHost
+    val host = new DefaultMDnsServiceHost
     host.start(InetAddress.getLocalHost)
     try {
       service = new AirPlayService(apDevice, 22555)

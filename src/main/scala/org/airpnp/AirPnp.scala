@@ -1,35 +1,41 @@
 
 package org.airpnp
 
-import net.pms.external.ExternalListener
-import org.slf4j.LoggerFactory
-import org.slf4j.Logger
-import net.pms.PMS
-import scala.collection.mutable.MutableList
+import java.net.DatagramPacket
+
 import scala.actors.Actor
-import org.airpnp.actor.DeviceBuilder
+
 import org.airpnp.actor.Coordinator
+import org.airpnp.actor.CoordinatorOptions
+import org.airpnp.actor.DeviceBuilder
+import org.airpnp.actor.DeviceDiscovery
+import org.airpnp.actor.DeviceFound
+import org.airpnp.actor.DevicePublisher
 import org.airpnp.actor.Stop
+import org.airpnp.airplay.DefaultMDnsServiceHost
+import org.airpnp.airplay.MDnsServiceHost
 import org.airpnp.plumbing.InterceptingDatagramSocketImplFactory
 import org.airpnp.upnp.UPnPMessage
-import org.airpnp.actor.DeviceFound
-import org.airpnp.actor.DeviceDiscovery
-import java.net.DatagramPacket
-import org.airpnp.actor.DevicePublisher
-import org.airpnp.actor.CoordinatorOptions
-import org.airpnp.airplay.MDnsServiceHost
 
-class AirPnp extends ExternalListener with Logging {
+import net.pms.dlna.DLNAResource
+import net.pms.dlna.virtual.VirtualFolder
+import net.pms.external.AdditionalFolderAtRoot
+import net.pms.external.ExternalListener
+
+class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging {
 
   private var coordinator: Coordinator = null
   private var mdnsHost: MDnsServiceHost = null
+  private var rootFolder: DLNAResource = null
 
   info("AirPnp plugin starting!")
   if (!Util.hasJDKHttpServer) {
     error("AirPnp needs a JDK rather than a JRE for HTTP server support.")
   } else {
+    rootFolder = new VirtualFolder("AirPnp", null)
+    
     val addr = Networking.getInetAddress
-    mdnsHost = new MDnsServiceHost()
+    mdnsHost = new DefaultMDnsServiceHost()
     mdnsHost.start(addr)
     val db = new DeviceBuilder(Networking.createDownloader())
     val dd = new DeviceDiscovery
@@ -64,4 +70,6 @@ class AirPnp extends ExternalListener with Logging {
     mdnsHost.stop()
     coordinator !? Stop
   }
+  
+  def getChild(): DLNAResource = rootFolder
 }

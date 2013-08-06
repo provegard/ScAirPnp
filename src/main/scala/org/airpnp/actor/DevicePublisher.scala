@@ -17,6 +17,8 @@ import org.airpnp.http.RoutingHttpServer
 import scala.collection.mutable.HashMap
 import scala.concurrent.Await
 import org.airpnp.upnp.Device
+import scala.util.Success
+import scala.util.Failure
 
 class DevicePublisher(private val mdnsHost: MDnsServiceHost, private val addr: InetAddress) extends Actor with Logging {
   //  private var comm: DeviceCommunicator = null
@@ -64,13 +66,19 @@ object DevicePublisher {
 
     def stopAll(mdnsHost: MDnsServiceHost) {
       debug("Stopping HTTP server and unregistering AirPlay service for device {}.",
-          device.getFriendlyName)
+        device.getFriendlyName)
       mdnsHost.unregister(apService.getService)
       httpServer.stop(0)
-      val f = bridge.isPlaying flatMap { playing: Boolean =>
-        (if (playing) bridge.stop() else future { () }).map(_ => comm !? Stop)
+      val f = bridge.isPlaying.andThen({
+        case Success(playing) => if (playing) bridge.stop()
+      }).andThen({
+        case _ => comm !? Stop
+      })
+      try {
+        Await.result(f, Inf)
+      } catch {
+        case _: Exception => // Ignore
       }
-      Await.result(f, Inf)
     }
   }
 }

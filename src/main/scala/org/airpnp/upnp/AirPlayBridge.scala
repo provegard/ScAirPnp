@@ -30,8 +30,8 @@ class AirPlayBridge(private val device: Device,
     val a = avTransport.action("GetPositionInfo").get
     sender.apply(controlUrl, createMessage(a)).map {
       case reply => {
-        val d = parseDuration(reply.getArgument("TrackDuration", "0:0:0"))
-        val p = parseDuration(reply.getArgument("RelTime", "0:0:0"))
+        val d = parseDuration(reply.getArgument("TrackDuration", "0:00:00"))
+        val p = parseDuration(reply.getArgument("RelTime", "0:00:00"))
         new DurationAndPosition(d, p)
       }
     }

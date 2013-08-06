@@ -37,7 +37,8 @@ class DeviceCommunicator(private val device: Device) extends Actor with Logging 
         }
         case m: DeviceCommunicator.Message => {
           //TODO: If the reply is not a timeout/socket error, update the timestamp
-          sender ! DeviceCommunicator.Reply(Try(client.sendMessage(m.url, m.msg)))
+          val t = Try(client.sendMessage(m.url, m.msg))
+          sender ! DeviceCommunicator.Reply(t)
         }
       }
     }

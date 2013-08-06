@@ -35,7 +35,7 @@ object RoutingHttpServer {
   }
 }
 
-class RoutingHttpServer(private val address: InetSocketAddress) {
+class RoutingHttpServer(private val address: InetSocketAddress) extends Logging {
 
   private val server = HttpServer.create(address, 20)
   server.createContext("/", new RoutingHttpServer.Root)
@@ -43,7 +43,13 @@ class RoutingHttpServer(private val address: InetSocketAddress) {
 
   def addRoute(url: String, handler: RouteHandler) = server.createContext(url, new RoutingHttpServer.Router(handler))
 
-  def start() = server.start
-  def stop(wait: Int) = server.stop(wait)
+  def start() {
+    debug("Starting HTTP server on {}.", address.toString)
+    server.start
+  }
+  def stop(wait: Int) {
+    debug("Stopping HTTP server on {}, waiting {} second(s).", address.toString, wait.toString)
+    server.stop(wait)
+  }
 
 }
