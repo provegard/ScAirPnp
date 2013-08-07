@@ -14,7 +14,7 @@ class ActionTest {
     val device = new Device(XML.load(deviceStream), "http://base.com")
     val service = device.getServices.head
 
-    val serviceStream = getClass.getResourceAsStream("mediarenderer/service_scpd.xml")
+    val serviceStream = getClass.getResourceAsStream("mediarenderer/avtransport.xml")
     val root = XML.load(serviceStream)
     service.initialize(root)
 

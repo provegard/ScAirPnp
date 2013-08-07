@@ -17,7 +17,7 @@ class InitializedServiceTest {
     val device = new Device(root, "http://www.base.com")
 
     service = device.getServiceById("urn:upnp-org:serviceId:AVTransport").get
-    stream = getClass.getResourceAsStream("mediarenderer/service_scpd.xml")
+    stream = getClass.getResourceAsStream("mediarenderer/avtransport.xml")
     root = XML.load(stream)
     service.initialize(root)
   }

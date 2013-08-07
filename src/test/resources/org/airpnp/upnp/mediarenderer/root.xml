@@ -6,10 +6,10 @@
   </specVersion>
   <device>
     <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType>
-    <friendlyName>A Test Device</friendlyName>
+    <friendlyName>WDTVLIVE</friendlyName>
     <manufacturer>AMediaRendererManufacturer</manufacturer>
     <modelName>AMediaRenderer</modelName>
-    <UDN>uuid:abcdefghijk</UDN>
+    <UDN>uuid:67ff722f-0090-a976-17db-e9396986c234</UDN>
     <serviceList>
       <service>
         <serviceType>urn:schemas-upnp-org:service:AVTransport:1</serviceType>
