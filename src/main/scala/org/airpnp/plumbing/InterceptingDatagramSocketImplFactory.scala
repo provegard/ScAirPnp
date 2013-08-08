@@ -15,12 +15,10 @@ object InterceptingDatagramSocketImplFactory extends Logging {
   }
 }
 
-class InterceptingDatagramSocketImplFactory(private val interceptor: (DatagramPacket) => Unit) extends DatagramSocketImplFactory with Logging {
+class InterceptingDatagramSocketImplFactory(private val interceptor: (DatagramPacket) => Unit) extends DatagramSocketImplFactory {
 
   override def createDatagramSocketImpl(): DatagramSocketImpl = {
     val isMc: java.lang.Boolean = isMulticast
-    trace("InterceptingDatagramSocketImplFactory thinks the caller is a {} socket.",
-      if (isMc) "multicast" else "unicast")
     val real = createTheRealImpl(isMc);
     return new InterceptingDatagramSocketImpl(isMc, real, interceptor)
   }
