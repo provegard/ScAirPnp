@@ -21,15 +21,14 @@ import scala.util.Success
 import scala.util.Failure
 
 class DevicePublisher(private val mdnsHost: MDnsServiceHost, private val addr: InetAddress) extends Actor with Logging {
-  //  private var comm: DeviceCommunicator = null
-  //  private var apService: AirPlayService = null
-
   private val published = new HashMap[String, DevicePublisher.PublishedStuff]()
 
   def act() {
     loop {
       react {
         case x: Publish => {
+          info("Found media renderer '{}', now publishing!", x.device.getFriendlyName)
+
           val port = Util.findPort
           val publishedStuff = new DevicePublisher.PublishedStuff(x.device,
             new InetSocketAddress(addr, port))
@@ -57,8 +56,8 @@ object DevicePublisher {
     private val apService = new AirPlayService(bridge, addr.getPort())
 
     def startAll(mdnsHost: MDnsServiceHost) {
-      debug("Starting HTTP server at {} and registering AirPlay service for device {}.",
-        addr.toString, device.getFriendlyName)
+      debug("Starting HTTP server and registering AirPlay service for device {}.",
+        device.getFriendlyName)
       comm.start()
       httpServer.start()
       mdnsHost.register(apService.getService)

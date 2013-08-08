@@ -16,7 +16,7 @@ class CoordinatorOptions {
   var deviceBuilder: Actor = null
   var deviceDiscovery: Actor = null
   var devicePublisher: Actor = null
-//  var checkLiveness: Actor = null
+  //  var checkLiveness: Actor = null
   var discoveryInterval = 300000l
   var livenessCheckInterval = 30000l
   var address: InetAddress = null
@@ -26,13 +26,10 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
   private val deviceBuilder = options.deviceBuilder
   private val deviceDiscovery = options.deviceDiscovery
   private val devicePublisher = options.devicePublisher
-//  private val checkLiveness = options.checkLiveness
 
+  private val foundUdns = new HashSet[String]()
   private val ignoredUdns = new HashSet[String]()
-//  private val publishers = new HashMap[String, Actor]()
-//  private val devices = new HashMap[String, Device]()
   private val depActors = Seq(deviceBuilder, deviceDiscovery, devicePublisher)
-//  private val mdnsHost = new MDnsServiceHost()
 
   private var stopCount = 0
 
@@ -49,7 +46,6 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
     })
 
   override def start(): Actor = {
-//    mdnsHost.start(options.address)
     depActors.filter(_ != null).foreach(_.start())
     schedulers.foreach(_.start())
     super.start()
@@ -58,11 +54,13 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
   def act() = {
     loop {
       react {
-        case df: DeviceFound => {
+        case df: DeviceFound =>
           if (!ignoredUdns.contains(df.udn)) {
-            deviceBuilder ! Build(df.udn, df.location)
+            if (!foundUdns.contains(df.udn)) {
+              foundUdns += df.udn
+              deviceBuilder ! Build(df.udn, df.location)
+            } //TODO: else, perhaps ping/touch??
           }
-        }
 
         case ign: DeviceShouldBeIgnored =>
           ign.device match {
@@ -71,27 +69,16 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
           }
           ignoredUdns += ign.udn //TODO: What do we need it for now that we have foundUdns??
 
-        case dr: DeviceReady => {
-//          val udn = dr.device.getUdn
-//          devices += ((udn, dr.device))
-//          val publisher = new DevicePublisher(mdnsHost, options.address, dr.device)
-//          publishers += ((udn, publisher))
-//          publisher.start()
+        case dr: DeviceReady =>
           devicePublisher ! Publish(dr.device)
-          //TODO: Log, create and send to DevicePublisher
-        }
 
-        case Stop => {
+        case Stop =>
           //TODO: Waitall!
           schedulers.foreach(_ ! Stop)
           depActors.filter(_ != null).foreach(_ ! Stop)
-//          publishers.values.toList.foreach(_ ! Stop)
-//          mdnsHost.stop()
-          
           debug("Coordinator was stopped.")
           sender ! Stopped
           exit
-        }
       }
     }
   }
