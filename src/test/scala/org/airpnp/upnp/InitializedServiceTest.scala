@@ -34,7 +34,7 @@ class InitializedServiceTest {
 
   @Test
   def shouldExposeSCPDURLWithBaseUrl() {
-    assertThat(service.getSCPDURL).startsWith("http://www.base.com/service")
+    assertThat(service.getSCPDURL).isEqualTo("http://www.base.com/avtransport.xml")
   }
 
   @Test def shouldExposeControlURLWithBaseUrl() {
