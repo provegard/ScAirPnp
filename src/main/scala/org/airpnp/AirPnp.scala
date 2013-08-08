@@ -14,25 +14,26 @@ import org.airpnp.actor.DevicePublisher
 import org.airpnp.actor.Stop
 import org.airpnp.airplay.DefaultMDnsServiceHost
 import org.airpnp.airplay.MDnsServiceHost
+import org.airpnp.dlna.AirPnpFolder
 import org.airpnp.plumbing.InterceptingDatagramSocketImplFactory
 import org.airpnp.upnp.UPnPMessage
 
 import net.pms.dlna.DLNAResource
-import net.pms.dlna.virtual.VirtualFolder
 import net.pms.external.AdditionalFolderAtRoot
 import net.pms.external.ExternalListener
 
-class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging {
+class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging with TestMode {
 
   private var coordinator: Coordinator = null
   private var mdnsHost: MDnsServiceHost = null
-  private var rootFolder: DLNAResource = null
+  private var rootFolder: AirPnpFolder = null
 
   info("AirPnp plugin starting!")
   if (!Util.hasJDKHttpServer) {
     error("AirPnp needs a JDK rather than a JRE for HTTP server support.")
   } else {
-    rootFolder = new VirtualFolder("AirPnp", null)
+    rootFolder = new AirPnpFolder()
+    maybeAddTestContent(rootFolder)
     
     val addr = Networking.getInetAddress
     mdnsHost = new DefaultMDnsServiceHost()
@@ -60,7 +61,7 @@ class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging {
       Actor.actor { target ! DeviceFound(msg.getUdn.get, msg.getLocation.get) }
     }
   }
-
+  
   def config(): javax.swing.JComponent = null
 
   def name(): String = "AirPnp"
