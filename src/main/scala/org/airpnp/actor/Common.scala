@@ -21,7 +21,9 @@ case object CheckLiveness
 
 object Scheduling {
   // http://stackoverflow.com/questions/1224342/sleeping-actors
-  def scheduler(time: Long)(f: => Unit) = {
+  //TODO: Move into package object
+  //TODO: Reply with Stopped!
+  def scheduler(initialDelay: Long, time: Long)(f: => Unit) = {
     def fixedRateLoop {
       Actor.reactWithin(time) {
         case TIMEOUT =>
@@ -29,6 +31,13 @@ object Scheduling {
         case Stop =>
       }
     }
-    Actor.actor(fixedRateLoop)
+    def initialLoop {
+      Actor.reactWithin(initialDelay) {
+        case TIMEOUT =>
+          f; fixedRateLoop
+        case Stop =>
+      }
+    }
+    Actor.actor(initialLoop)
   }
 }

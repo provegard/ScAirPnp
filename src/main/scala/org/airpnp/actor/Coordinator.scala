@@ -37,12 +37,12 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
   private var stopCount = 0
 
   private val schedulers = Seq(
-    Scheduling.scheduler(options.discoveryInterval) {
+    Scheduling.scheduler(1000, options.discoveryInterval) {
       if (deviceDiscovery != null) {
         deviceDiscovery ! DoDiscovery
       }
     },
-    Scheduling.scheduler(options.livenessCheckInterval) {
+    Scheduling.scheduler(options.livenessCheckInterval, options.livenessCheckInterval) {
       //      if (checkLiveness != null) {
       //        checkLiveness ! DoLivenessCheck(devices.values.toList)
       //      }
