@@ -25,7 +25,7 @@ class CoordinatorIgnoreDeviceFoundTest {
     coord.start()
 
     stopper(coord) {
-      coord ! DeviceShouldBeIgnored("uuid:abcd", "because I say so")
+      coord ! DeviceShouldBeIgnored(None, "uuid:abcd", "because I say so")
       coord ! DeviceFound("uuid:abcd", "http://foo.com")
       result = latch.await(500, TimeUnit.MILLISECONDS)
     }

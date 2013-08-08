@@ -10,37 +10,34 @@ class DeviceBuilder(private val download: String => Node) extends Actor with Log
 
   //TODO: Find a better way to reference this info in exceptionHandler
   private var currentUdn: String = null
-  
+
   override def exceptionHandler = {
     case e: Exception => {
-      sender ! DeviceShouldBeIgnored(currentUdn, "build error: " + e.getMessage)
+      sender ! DeviceShouldBeIgnored(None, currentUdn, "build error: " + e.getMessage)
     }
   }
-  
+
   def act() = {
     loop {
       react {
-        case b: Build => {
+        case b: Build =>
           currentUdn = b.udn
-          debug("Building device from {}.", b.location)
-          
+          debug("Building new device with UDN {} from {}.", b.udn, b.location)
+
           val node = download(b.location)
           val device = new Device(node, b.location)
-          
+
           if (device.isMediaRenderer) {
-            trace("Initializing services for device {}.", device.getFriendlyName)
             device.getServices.foreach(s => s.initialize(download(s.getSCPDURL)))
             sender ! DeviceReady(device)
           } else {
-            debug("Ignoring device {} because it's not a media renderer.", device.getFriendlyName)
-            sender ! DeviceShouldBeIgnored(device.getUdn, "not a media renderer")
+            sender ! DeviceShouldBeIgnored(Some(device), b.udn, "not a media renderer")
           }
-        }
-        case Stop => {
+
+        case Stop =>
           debug("Device builder was stopped.")
           sender ! Stopped
           exit
-        }
       }
     }
   }

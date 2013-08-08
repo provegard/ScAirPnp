@@ -11,7 +11,7 @@ case object Stopped // reply message when an actor is stopped
 case class DoLivenessCheck(val devices: Seq[Device])
 case class DeviceIsGone(val udn: String)
 case class Build(val udn: String, val location: String)
-case class DeviceShouldBeIgnored(val udn: String, val reason: String)
+case class DeviceShouldBeIgnored(val device: Option[Device], val udn: String, val reason: String)
 case class DeviceReady(val device: Device)
 case object DoDiscovery
 case class DeviceFound(val udn: String, val location: String)

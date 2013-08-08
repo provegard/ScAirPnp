@@ -64,10 +64,12 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
           }
         }
 
-        case ign: DeviceShouldBeIgnored => {
-          debug("Ignoring device with UDN {} because {}.", ign.udn, ign.reason)
-          ignoredUdns += ign.udn
-        }
+        case ign: DeviceShouldBeIgnored =>
+          ign.device match {
+            case Some(d) => debug("Ignoring device '{}' because: {}.", d.getFriendlyName, ign.reason)
+            case None => debug("Ignoring device with UDN {} because: {}.", ign.udn, ign.reason)
+          }
+          ignoredUdns += ign.udn //TODO: What do we need it for now that we have foundUdns??
 
         case dr: DeviceReady => {
 //          val udn = dr.device.getUdn
