@@ -34,11 +34,11 @@ class PhotoRoute(private val apDevice: AirPlayDevice) extends RouteHandler {
 
     val length = request.getHeader("Content-Length").headOption.getOrElse("0").toInt
     
-    //TODO: Read into ArrayBlockingQueue, pass factory that wraps input streams around it!
+    //TODO: For now, we consume all data and then publish streams off of it. In the 
+    // future, do these two things concurrently!
     val data = Util.readAllBytes(request.getInputStream)
-    val stream = new ByteArrayInputStream(data)
 
-    apDevice.showPhoto(stream, length, transition).onComplete {
+    apDevice.showPhoto(new ByteArrayInputStream(data), length, transition).onComplete {
       case Success(_) => response.respond(withStatus(200))
       case Failure(t) => RouteHelper.internalServerError(response, t)
     }
