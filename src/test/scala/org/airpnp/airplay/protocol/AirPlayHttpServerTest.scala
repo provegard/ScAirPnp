@@ -61,7 +61,7 @@ class AirPlayHttpServerTest {
     val conn = openUrl("/playback-info")
     conn.connect
 
-    assertThat(conn.getContentType).isEqualTo("text/x-apple-plist+xml")
+    assertThat(conn.getContentType).contains("text/x-apple-plist+xml")
 
     closeConn(conn)
   }
@@ -88,8 +88,7 @@ class AirPlayHttpServerTest {
     // Stub it to avoid NPE...
     stub(apDevice.getScrub).toReturn(future { new DurationAndPosition(2, 1) })
 
-    val is = openUrlForReading("/scrub", port)
-    val data = readAllAndClose(is)
+    val data = readTextAndClose(openUrl("/scrub"))
 
     assertThat(data).isEqualTo("duration: 2.0\nposition: 1.0")
   }
@@ -119,7 +118,7 @@ class AirPlayHttpServerTest {
     val conn = openUrl("/server-info")
     conn.connect
 
-    assertThat(conn.getContentType()).isEqualTo("text/x-apple-plist+xml")
+    assertThat(conn.getContentType()).contains("text/x-apple-plist+xml")
 
     closeConn(conn)
   }
@@ -128,7 +127,7 @@ class AirPlayHttpServerTest {
   def shouldReturnCorrectDataForForServerInfo() {
     stub(apDevice.getDeviceId).toReturn("fooid")
 
-    val is = openUrlForReading("/server-info", port)
+    val is = openUrl("/server-info").getInputStream()
     val root = XML.load(is)
     is.close()
 

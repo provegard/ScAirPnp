@@ -1,5 +1,6 @@
 package org.airpnp.upnp
 
+import org.airpnp.http.Response._
 import java.io.StringWriter
 import java.net.InetSocketAddress
 
@@ -73,7 +74,7 @@ object SoapClientTest {
     override def handlePOST(request: Request, response: Response) {
       val msg = SoapMessage.parse(request.getInputStream)
       val reply = new SoapMessage(msg.getServiceType, msg.getName + "Reply")
-      response.respond(reply.toString, contentType = "text/xml", chunked = true)
+      response.respond(withText(reply.toString).andContentType("text/xml").andIsChunked())
     }
   }
 
@@ -83,16 +84,16 @@ object SoapClientTest {
       request.getHeader("SOAPACTION").headOption match {
         case Some(x) if x == msg.getHeader => {
           val reply = new SoapMessage(msg.getServiceType, msg.getName + "Reply")
-          response.respond(reply.toString, contentType = "text/xml")
+          response.respond(withText(reply.toString).andContentType("text/xml"))
         }
-        case _ => response.respond("Incorrect SOAPACTION header", 400)
+        case _ => response.respond(withText("Incorrect SOAPACTION header").andStatusCode(400))
       }
     }
   }
 
   private class MPostHandler extends RouteHandler {
     override def handlePOST(request: Request, response: Response) {
-      response.respond("Use M-POST", 405)
+      response.respond(withText("Use M-POST").andStatusCode(405))
     }
     override def handleUnknown(request: Request, response: Response) {
       val msg = SoapMessage.parse(request.getInputStream)
@@ -102,11 +103,11 @@ object SoapClientTest {
             case Some(x) if x == msg.getHeader => request.getHeader("MAN").headOption match {
               case Some(y) if y == "\"http://schemas.xmlsoap.org/soap/envelope/\"; ns=01" => {
                 val reply = new SoapMessage(msg.getServiceType, msg.getName + "Reply")
-                response.respond(reply.toString, contentType = "text/xml")
+                response.respond(withText(reply.toString).andContentType("text/xml"))
               }
-              case _ => response.respond("Incorrect MAN header", 400)
+              case _ => response.respond(withText("Incorrect MAN header").andStatusCode(400))
             }
-            case _ => response.respond("Incorrect 01-SOAPACTION header", 400)
+            case _ => response.respond(withText("Incorrect 01-SOAPACTION header").andStatusCode(400))
           }
         }
         case _ => super.handleUnknown(request, response)
@@ -132,7 +133,7 @@ object SoapClientTest {
                 </s:Envelope>
       val sw = new StringWriter
       val str = XML.write(sw, doc, "UTF-8", true, null, MinimizeMode.Default)
-      response.respond(sw.toString, 500, "text/xml")
+      response.respond(withUtf8Text(sw.toString).andStatusCode(500).andContentType("text/xml"))
     }
   }
 }

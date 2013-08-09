@@ -1,5 +1,6 @@
 package org.airpnp.actor
 
+import org.airpnp.http.Response._
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.URL
@@ -102,14 +103,14 @@ object DevicePublisherTest {
           val reply = new SoapMessage(msg.getServiceType, "GetPositionInfoReply")
           reply.setArgument("TrackDuration", "0:00:59")
           reply.setArgument("RelTime", "0:00:00")
-          response.respondRaw(reply.toString.getBytes, contentType = "text/xml")
+          response.respond(withUtf8Text(reply.toString).andContentType("text/xml"))
         }
         case "GetTransportInfo" => {
           val reply = new SoapMessage(msg.getServiceType, "GetTransportInfoReply")
           reply.setArgument("CurrentTransportState", "PLAYING")
-          response.respondRaw(reply.toString.getBytes, contentType = "text/xml")
+          response.respond(withUtf8Text(reply.toString).andContentType("text/xml"))
         }
-        case _ => response.respond("", 501)
+        case _ => response.respond(withStatus(501))
       }
     }
   }

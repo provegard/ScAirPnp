@@ -88,7 +88,7 @@ class AirPlayBridge(private val device: Device,
     }
   }
 
-  def showPhoto(data: InputStream, transition: String) = {
+  def showPhoto(data: InputStream, length: Int, transition: String) = {
     //TODO: SetAVTransportURI + Play
     //Requires us to publish the photo...
     future { () }

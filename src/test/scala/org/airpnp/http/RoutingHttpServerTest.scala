@@ -1,19 +1,16 @@
 package org.airpnp.http
 
-import org.fest.assertions.Assertions.assertThat
-
-import org.airpnp.http.HttpTestUtil._
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.io.InputStream
 import java.net.InetSocketAddress
-import java.net.MalformedURLException
-import java.net.URLConnection
-
 import org.airpnp.Util
+import org.airpnp.http.HttpTestUtil._
+import org.airpnp.http.Response.{withText, withUtf8Text}
+import org.fest.assertions.Assertions.assertThat
 import org.testng.annotations.AfterMethod
 import org.testng.annotations.BeforeMethod
 import org.testng.annotations.Test
+import java.io.IOException
+import java.io.FileNotFoundException
+import java.nio.charset.Charset
 
 class RoutingHttpServerTest {
 
@@ -32,36 +29,36 @@ class RoutingHttpServerTest {
   @Test
   def shouldHandleSimpleGet() {
     server.addRoute("/somewhere", new RouteHandler() {
-      override def handleGET(request: Request, response: Response) = response.respond("success")
+      override def handleGET(request: Request, response: Response) = response.respond(withText("success"))
     })
     server.start
 
-    val data = readAllAndClose(openUrl("/somewhere"))
+    val data = readTextAndClose(openUrl("/somewhere"))
     assertThat(data).isEqualTo("success")
   }
 
   @Test(expectedExceptions = Array(classOf[IOException]), expectedExceptionsMessageRegExp = ".*response code: 400.*")
   def shouldBePossibleToRespondWithOtherCodes() {
     server.addRoute("/somewhere", new RouteHandler() {
-      override def handleGET(request: Request, response: Response) = response.respond("Bad request", 400)
+      override def handleGET(request: Request, response: Response) = response.respond(withText("Bad request").andStatusCode(400))
     })
     server.start
-    openUrl("/somewhere")
+    openUrl("/somewhere").getInputStream()
   }
 
   @Test(expectedExceptions = Array(classOf[IOException]), expectedExceptionsMessageRegExp = ".*response code: 405.*")
   def shouldRespondWithMethodNotAllowedIfMethodNotHandled() {
     server.addRoute("/somewhere", new RouteHandler() {})
     server.start
-	openUrl("/somewhere")
+	openUrl("/somewhere").getInputStream()
   }
 
   @Test
   def shouldSupportPost() {
     server.addRoute("/reverse", new RouteHandler() {
       override def handlePOST(request: Request, response: Response) {
-        val data = readAllAndClose(request.getInputStream())
-        response.respond(data.reverse)
+        val data = readTextAndClose(request.getInputStream(), request.getHeader("Content-Type").head)
+        response.respond(withText(data.reverse))
       }
     })
     server.start
@@ -69,7 +66,7 @@ class RoutingHttpServerTest {
     val connection = HttpTestUtil.postDataToUrl("/reverse", port,
       "application/x-www-form-urlencoded;charset=utf-8",
       "hello world".getBytes("UTF8"))
-    val read = readAllAndClose(connection.getInputStream)
+    val read = readTextAndClose(connection)
     assertThat(read).isEqualTo("dlrow olleh")
   }
 
@@ -77,11 +74,11 @@ class RoutingHttpServerTest {
   def shouldParseQueryString() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) =
-        response.respond(request.getArgument("foo").head)
+        response.respond(withText(request.getArgument("foo").head))
     })
     server.start
 
-    val data = readAllAndClose(openUrl("/somewhere?foo=bar"))
+    val data = readTextAndClose(openUrl("/somewhere?foo=bar"))
     assertThat(data).isEqualTo("bar")
   }
 
@@ -89,29 +86,29 @@ class RoutingHttpServerTest {
   def shouldSupportUnnamedArgsInQueryString() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) =
-        response.respond(request.getArgument("").head)
+        response.respond(withText(request.getArgument("").head))
     })
     server.start
 
-    val data = readAllAndClose(openUrl("/somewhere?bar"))
+    val data = readTextAndClose(openUrl("/somewhere?bar"))
     assertThat(data).isEqualTo("bar")
   }
 
   @Test(expectedExceptions = Array(classOf[FileNotFoundException]))
   def shouldReturnNotFoundWhenRouteIsntFound() {
     server.start
-    openUrl("/somewhere")
+    openUrl("/somewhere").getInputStream()
   }
 
   @Test
   def shouldSupportQueryingArgThatDoesntExist() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) =
-        response.respond("" + request.getArgument("foo").length)
+        response.respond(withText("" + request.getArgument("foo").length))
     })
     server.start
 
-    val data = readAllAndClose(openUrl("/somewhere?bar"))
+    val data = readTextAndClose(openUrl("/somewhere?bar"))
     assertThat(data).isEqualTo("0")
   }
 
@@ -119,15 +116,25 @@ class RoutingHttpServerTest {
   def shouldSupportQueryingHeaderThatDoesntExist() {
     server.addRoute("/somewhere", new RouteHandler() {
       override def handleGET(request: Request, response: Response) =
-        response.respond("" + request.getHeader("X-Foo").size)
+        response.respond(withText("" + request.getHeader("X-Foo").size))
     })
     server.start
 
-    val data = readAllAndClose(openUrl("/somewhere?bar"))
+    val data = readTextAndClose(openUrl("/somewhere?bar"))
     assertThat(data).isEqualTo("0")
   }
+  
+  @Test def shouldHandleUtf8Properly() {
+    server.addRoute("/somewhere", new RouteHandler() {
+      override def handleGET(request: Request, response: Response) =
+        response.respond(withUtf8Text("Test\u1234"))
+    })
+    server.start
 
-  private def openUrl(path: String) = HttpTestUtil.openUrlForReading(path, port)
+    val data = readTextAndClose(openUrl("/somewhere?bar"))
+    assertThat(data).isEqualTo("Test\u1234")
+  }
 
+  private def openUrl(path: String) = HttpTestUtil.openUrlConnection(path, port)
   private def createServer(port: Int) = new RoutingHttpServer(new InetSocketAddress("localhost", port))
 }

@@ -14,7 +14,7 @@ abstract class AirPlayDevice {
   def setScrub(position: Double): Future[Unit]
   def play(location: String, position: Double): Future[Unit]
   def stop(): Future[Unit]
-  def showPhoto(data: InputStream, transition: String): Future[Unit]
+  def showPhoto(data: InputStream, length: Int, transition: String): Future[Unit]
   def setRate(rate: Double): Future[Unit]
   def setProperty(name: String, value: Any): Future[Unit]
   def getName(): String
