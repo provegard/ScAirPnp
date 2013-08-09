@@ -20,8 +20,7 @@ class AirPlayHttpServer(address: InetSocketAddress, apDevice: AirPlayDevice) ext
   addRoute("/rate", new RateRoute(apDevice))
   addRoute("/setProperty", new SetPropertyRoute(apDevice))
   addRoute("/photo", new PhotoRoute(apDevice))
-//  addRoute("/reverse", new ReverseRoute(apDevice))
-
+  addRoute("/reverse", new ReverseRoute(apDevice))
 }
 
 //object AirPlayHttpServer {

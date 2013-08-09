@@ -5,6 +5,12 @@ import java.nio.charset.Charset
 
 class Response(he: HttpExchange) {
 
+  private var closeIt = true
+
+  def dontClose() {
+    closeIt = false
+  }
+
   def addHeader(name: String, value: String) {
     he.getResponseHeaders().add(name, value)
   }
@@ -24,7 +30,9 @@ class Response(he: HttpExchange) {
     // From the API doc:
     // Exchanges are terminated when both the request InputStream and response OutputStream are closed. 
     // Closing the OutputStream, implicitly closes the InputStream (if it is not already closed).
-    os.close
+    if (closeIt) {
+      os.close
+    }
   }
 
 }

@@ -177,19 +177,22 @@ class StopRoute(private val apDevice: AirPlayDevice) extends RouteHandler {
   }
 }
 
-//class ReverseRoute(apDevice: AirPlayDevice) extends RouteHandler {
-//  override def handlePOST(request: Request, response: Response) {
-//    //Upgrade: PTTH/1.0
-//    //X-apple-device-id: 0x............
-//    //Content-length: 0
-//    //Connection: Upgrade
-//    //X-apple-purpose: event
-//    //User-agent: AirPlay/160.10 (Photos)
-//    //X-apple-session-id: <guid>
-//    //X-apple-client-name: ...
-//    response.dontClose()
-//    response.addHeader("Upgrade", "PTTH/1.0")
-//    response.addHeader("Connection", "Upgrade")
-//    response.respondRaw(new Array[Byte](0), 101)
-//  }
-//}
+class ReverseRoute(apDevice: AirPlayDevice) extends RouteHandler {
+  override def handlePOST(request: Request, response: Response) {
+    //Upgrade: PTTH/1.0
+    //X-apple-device-id: 0x............
+    //Content-length: 0
+    //Connection: Upgrade
+    //X-apple-purpose: event
+    //User-agent: AirPlay/160.10 (Photos)
+    //X-apple-session-id: <guid>
+    //X-apple-client-name: ...
+    //NOTE: We cannot do anything with the connection, because Oracle's HTTP
+    // server doesn't allow us to do anything beyond responding with 101. If
+    // we only could get hold of the socket channel...
+    response.dontClose()
+    response.addHeader("Upgrade", "PTTH/1.0")
+    response.addHeader("Connection", "Upgrade")
+    response.respond(withStatus(101))
+  }
+}

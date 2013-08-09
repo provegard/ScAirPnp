@@ -30,7 +30,8 @@ object RoutingHttpServer {
   private class Router(private val handler: RouteHandler) extends HttpHandler with Logging {
 
     def handle(t: HttpExchange) = {
-      trace("Request for path {} from {}.", t.getRequestURI.toString, t.getRemoteAddress.toString)
+      trace("Got {} to {} from {}.", t.getRequestMethod,
+        t.getRequestURI.toString, t.getRemoteAddress.toString)
 
       t.getRequestMethod.toLowerCase match {
         case "get" => handler.handleGET(new Request(t), new Response(t))
@@ -52,7 +53,7 @@ class RoutingHttpServer(private val address: InetSocketAddress) extends Logging 
   def addFilter(filter: Filter) {
     filters += filter
   }
-  
+
   def addRoute(url: String, handler: RouteHandler) {
     val ctx = server.createContext(url, new RoutingHttpServer.Router(handler))
     filters.foreach(ctx.getFilters().add(_))
