@@ -23,7 +23,7 @@ class PropertyList(val root: PropertyListObject[_]) {
     
     // Essentially what xml.XML.write does, but we control quotes and newlines!
     w.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-    w.write( doctype.toString())
+    w.write(doctype.toString())
     w.write(Utility.serialize(doc.docElem).toString)
 
     w.toString
