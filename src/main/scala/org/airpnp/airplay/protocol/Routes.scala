@@ -16,6 +16,7 @@ import org.airpnp.Util
 import scala.util.Success
 import scala.util.Failure
 import java.io.ByteArrayInputStream
+import org.airpnp.Logging
 
 private[protocol] object RouteHelper {
   def internalServerError(response: Response, t: Throwable) = {
@@ -27,8 +28,14 @@ private[protocol] object RouteHelper {
   }
 }
 
-class PhotoRoute(private val apDevice: AirPlayDevice) extends RouteHandler {
+class PhotoRoute(private val apDevice: AirPlayDevice) extends RouteHandler with Logging {
   override def handlePUT(request: Request, response: Response) = {
+    
+    val assetKey = request.getHeader("X-Apple-AssetKey").headOption match {
+      case Some(key) => trace("Photo has asset key {}.", key)
+      case None => 
+    }
+    
     val transList = request.getHeader("X-Apple-Transition")
     val transition = transList.headOption.getOrElse("")
 
