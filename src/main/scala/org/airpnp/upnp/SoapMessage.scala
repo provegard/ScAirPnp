@@ -1,4 +1,4 @@
-package org.airpnp.upnp	
+package org.airpnp.upnp
 
 import scala.collection.JavaConversions._
 import javax.xml.soap.MessageFactory
@@ -9,6 +9,7 @@ import java.io.InputStream
 import scala.xml.XML
 import scala.xml.Node
 import javax.xml.soap.SOAPElement
+import org.w3c.dom.Element
 
 object SoapMessage {
   private val messageFactory = MessageFactory.newInstance
@@ -20,26 +21,26 @@ object SoapMessage {
 class SoapMessage private (private val serviceTypeIn: String, private val nameIn: String, private val is: InputStream) {
   private val (soapPart, bodyElement, serviceType: String, name: String) = {
     if (is != null) {
-    	val soapMessage = SoapMessage.messageFactory.createMessage(null, is)
-	    val soapPart = soapMessage.getSOAPPart
-	    val soapEnvelope = soapPart.getEnvelope
+      val soapMessage = SoapMessage.messageFactory.createMessage(null, is)
+      val soapPart = soapMessage.getSOAPPart
+      val soapEnvelope = soapPart.getEnvelope
 
-	    val soapBody = soapEnvelope.getBody
-	    val bodyElement = soapBody.getChildElements.toSeq.filter(x => x.isInstanceOf[SOAPElement]).head.asInstanceOf[SOAPElement]
-    	(soapPart, bodyElement, bodyElement.getNamespaceURI(), bodyElement.getLocalName)
+      val soapBody = soapEnvelope.getBody
+      val bodyElement = soapBody.getChildElements.toSeq.filter(x => x.isInstanceOf[SOAPElement]).head.asInstanceOf[SOAPElement]
+      (soapPart, bodyElement, bodyElement.getNamespaceURI(), bodyElement.getLocalName)
     } else {
-	    val soapMessage = SoapMessage.messageFactory.createMessage
-	    val soapPart = soapMessage.getSOAPPart
-	    val soapEnvelope = soapPart.getEnvelope
-	
-	    // Header is optional, remove it
-	    val soapHeader = soapEnvelope.getHeader
-	    soapEnvelope.removeChild(soapHeader)
-	
-	    val soapBody = soapEnvelope.getBody();
-	    val bodyName = soapEnvelope.createName(nameIn, "u", serviceTypeIn)
-	    val bodyElement = soapBody.addBodyElement(bodyName)
-	    (soapPart, bodyElement, serviceTypeIn, nameIn)
+      val soapMessage = SoapMessage.messageFactory.createMessage
+      val soapPart = soapMessage.getSOAPPart
+      val soapEnvelope = soapPart.getEnvelope
+
+      // Header is optional, remove it
+      val soapHeader = soapEnvelope.getHeader
+      soapEnvelope.removeChild(soapHeader)
+
+      val soapBody = soapEnvelope.getBody();
+      val bodyName = soapEnvelope.createName(nameIn, "u", serviceTypeIn)
+      val bodyElement = soapBody.addBodyElement(bodyName)
+      (soapPart, bodyElement, serviceTypeIn, nameIn)
     }
   }
 
@@ -81,4 +82,11 @@ class SoapMessage private (private val serviceTypeIn: String, private val nameIn
   }
 
   def isFault() = getName == "Fault"
+
+  def toFunctionLikeString() = {
+    getHeader + "(" +
+      bodyElement.getChildElements()
+      .map(_.asInstanceOf[Element])
+      .map(e => e.getNodeName + ": " + e.getTextContent).mkString(", ") + ")"
+  }
 }

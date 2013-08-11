@@ -40,6 +40,13 @@ class SoapMessageTest {
   }
 
   @Test
+  def shouldBeAbleToReturnFunctionLikeString() {
+    message.setArgument("foo", "bar")
+    message.setArgument("bar", "baz")
+    assertThat(message.toFunctionLikeString).isEqualTo("type#action(foo: bar, bar: baz)")
+  }
+
+  @Test
   def shouldBeAbleToModifyAnArgument() {
     message.setArgument("foo", "bar")
     message.setArgument("foo", "baz")
