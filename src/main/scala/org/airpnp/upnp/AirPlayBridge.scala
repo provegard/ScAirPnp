@@ -8,13 +8,15 @@ import org.airpnp.Logging
 import org.airpnp.upnp.UPNP.{ toDuration, parseDuration }
 import scala.concurrent.Future
 import java.io.InputStream
+import org.airpnp.dlna.DLNAPublisher
 
 object AirPlayBridge {
   private val AVTRANSPORT_SERVICE_TYPE = "urn:schemas-upnp-org:service:AVTransport:1"
 }
 
 class AirPlayBridge(private val device: Device,
-  private val sender: (String, SoapMessage) => Future[SoapMessage]) extends BaseAirPlayDevice(device.getFriendlyName, device.getUdn) with Logging {
+  private val sender: (String, SoapMessage) => Future[SoapMessage],
+  dlnaPublisher: DLNAPublisher) extends BaseAirPlayDevice(device.getFriendlyName, device.getUdn) with Logging {
 
   //TODO: Assume that required actions exist here, verify when we build the device!!!
   // Only Pause is optional!!
@@ -89,9 +91,14 @@ class AirPlayBridge(private val device: Device,
   }
 
   def showPhoto(data: => InputStream, length: Int, transition: String) = {
-    //TODO: SetAVTransportURI + Play
-    //Requires us to publish the photo...
-    future { () }
+    val url = dlnaPublisher.publishPhoto("tempid", data, length)
+    info("Showing photo with length {}, transition {} is ignored.", length.toString, transition)
+    trace("-- Photo URL is {}.", url)
+    val setAVTransportURI = avTransport.action("SetAVTransportURI").get
+    val msg = createMessage(setAVTransportURI, ("CurrentURI", url), ("CurrentURIMetaData", ""))
+    sender(controlUrl, msg).map {
+      case _ => ()
+    }
   }
 
   def stop() = {

@@ -6,10 +6,10 @@ import net.pms.formats.FormatFactory
 import net.pms.dlna.DLNAMediaInfo
 import org.airpnp.Logging
 
-class StreamablePhoto(streamFactory: => InputStream,
+class StreamablePhoto(id: String, streamFactory: => InputStream,
   val length: Long) extends DLNAResource with Logging {
-
-  setFormat(FormatFactory.getAssociatedFormat("dummy.jpg"))
+  private val name = id + ".jpg" // Assume JPEG for all iDevice photos...
+  setFormat(FormatFactory.getAssociatedFormat(name))
   setMedia(new DLNAMediaInfo())
 
   override def isFolder() = false
@@ -17,8 +17,8 @@ class StreamablePhoto(streamFactory: => InputStream,
     trace("Input stream for streamable photo requested.")
     streamFactory
   }
-  
+
   def isValid() = true
-  def getName() = "dummy.jpg"
+  def getName() = name
   def getSystemName() = getName
 }

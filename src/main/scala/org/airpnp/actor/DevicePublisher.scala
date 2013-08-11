@@ -1,26 +1,25 @@
 package org.airpnp.actor
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.future
-import scala.concurrent.duration.Duration.Inf
-import org.airpnp.Logging
-import scala.actors.Actor
-import org.airpnp.airplay.AirPlayService
-import org.airpnp.Util
-import org.airpnp.upnp.AirPlayBridge
 import java.net.InetAddress
-import org.airpnp.airplay.MDnsServiceHost
-import org.airpnp.airplay.protocol.AirPlayHttpServer
 import java.net.InetSocketAddress
-import org.airpnp.airplay.AirPlayDevice
-import org.airpnp.http.RoutingHttpServer
+
+import scala.actors.Actor
 import scala.collection.mutable.HashMap
 import scala.concurrent.Await
-import org.airpnp.upnp.Device
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration.Inf
 import scala.util.Success
-import scala.util.Failure
 
-class DevicePublisher(private val mdnsHost: MDnsServiceHost, private val addr: InetAddress) extends Actor with Logging {
+import org.airpnp.Logging
+import org.airpnp.Util
+import org.airpnp.airplay.AirPlayService
+import org.airpnp.airplay.MDnsServiceHost
+import org.airpnp.airplay.protocol.AirPlayHttpServer
+import org.airpnp.upnp.AirPlayBridge
+import org.airpnp.upnp.Device
+import org.airpnp.dlna.DLNAPublisher
+
+class DevicePublisher(mdnsHost: MDnsServiceHost, addr: InetAddress, dlnaPublisher: DLNAPublisher) extends Actor with Logging {
   private val published = new HashMap[String, DevicePublisher.PublishedStuff]()
 
   def act() {
@@ -31,7 +30,7 @@ class DevicePublisher(private val mdnsHost: MDnsServiceHost, private val addr: I
 
           val port = Util.findPort
           val publishedStuff = new DevicePublisher.PublishedStuff(x.device,
-            new InetSocketAddress(addr, port))
+            new InetSocketAddress(addr, port), dlnaPublisher)
           publishedStuff.startAll(mdnsHost)
           published += ((x.device.getUdn, publishedStuff))
         }
@@ -48,10 +47,10 @@ class DevicePublisher(private val mdnsHost: MDnsServiceHost, private val addr: I
 }
 
 object DevicePublisher {
-  private class PublishedStuff(val device: Device, val addr: InetSocketAddress) extends Logging {
+  private class PublishedStuff(val device: Device, val addr: InetSocketAddress, dlnaPublisher: DLNAPublisher) extends Logging {
 
     private val comm = new DeviceCommunicator(device)
-    private val bridge = new AirPlayBridge(device, comm.createSoapSender())
+    private val bridge = new AirPlayBridge(device, comm.createSoapSender(), dlnaPublisher)
     private val httpServer = new AirPlayHttpServer(addr, bridge)
     private val apService = new AirPlayService(bridge, addr.getPort())
 

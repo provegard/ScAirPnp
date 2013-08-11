@@ -3,7 +3,7 @@ package org.airpnp.airplay;
 import java.io.InputStream
 import scala.concurrent.Future
 
-class DurationAndPosition(val duration: Double, val position: Double)
+case class DurationAndPosition(val duration: Double, val position: Double)
 
 abstract class AirPlayDevice {
   def getModel(): String

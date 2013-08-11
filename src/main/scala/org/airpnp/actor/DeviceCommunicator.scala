@@ -23,6 +23,7 @@ class DeviceCommunicator(private val device: Device) extends Actor with Logging 
 
   def act() {
     loop {
+      //TODO: Use reactWithin, and on TIMEOUT do a liveness check
       react {
         case Touch => {
           //TODO: Update last seen timestamp

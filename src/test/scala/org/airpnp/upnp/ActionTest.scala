@@ -3,23 +3,14 @@ package org.airpnp.upnp
 import org.fest.assertions.Assertions.assertThat
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
-import scala.xml.XML
 
 class ActionTest {
   private var action: Action = null
 
   @BeforeClass
   def createAction() {
-    val deviceStream = getClass.getResourceAsStream("mediarenderer/root.xml")
-    val device = new Device(XML.load(deviceStream), "http://base.com")
-    val service = device.getServices.head
-
-    val serviceStream = getClass.getResourceAsStream("mediarenderer/avtransport.xml")
-    val root = XML.load(serviceStream)
-    service.initialize(root)
-
-    val a = (root \\ "actionList" \ "action")(0)
-    action = new Action(a, service)
+    val device = buildInitializedMediaRenderer("http://base.com")
+    action = device.getServices.head.action("GetCurrentTransportActions").get
   }
 
   @Test def shouldBeAbleToCreateASoapMessage() {

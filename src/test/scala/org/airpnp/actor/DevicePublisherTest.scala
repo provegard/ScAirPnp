@@ -1,16 +1,15 @@
 package org.airpnp.actor
 
+import org.mockito.Mockito.mock
 import org.airpnp.http.Response._
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.URL
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-
 import scala.actors.Actor
 import scala.collection.mutable.MutableList
 import scala.xml.XML
-
 import org.airpnp.Util
 import org.airpnp.airplay.MDnsServiceHost
 import org.airpnp.http.HttpTestUtil
@@ -22,8 +21,8 @@ import org.airpnp.upnp.Device
 import org.airpnp.upnp.SoapMessage
 import org.fest.assertions.Assertions.assertThat
 import org.testng.annotations.Test
-
 import javax.jmdns.ServiceInfo
+import org.airpnp.dlna.DLNAPublisher
 
 class DevicePublisherTest {
   private def createDevice(baseUrl: String) = {
@@ -48,7 +47,7 @@ class DevicePublisherTest {
 
     val host = new DevicePublisherTest.FakeHost()
     val addr = InetAddress.getByName("localhost")
-    val publisher = new DevicePublisher(host, addr)
+    val publisher = new DevicePublisher(host, addr, mock(classOf[DLNAPublisher]))
 
     try {
       deviceServer.start()

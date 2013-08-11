@@ -16,6 +16,7 @@ class CoordinatorOptions {
   var deviceBuilder: Actor = null
   var deviceDiscovery: Actor = null
   var devicePublisher: Actor = null
+  var dlnaPublisher: Actor = null
   //  var checkLiveness: Actor = null
   var discoveryInterval = 300000l
   var livenessCheckInterval = 30000l
@@ -29,7 +30,8 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
 
   private val foundUdns = new HashSet[String]()
   private val ignoredUdns = new HashSet[String]()
-  private val depActors = Seq(deviceBuilder, deviceDiscovery, devicePublisher)
+  private val depActors = Seq(deviceBuilder, deviceDiscovery, devicePublisher,
+      options.dlnaPublisher)
 
   private var stopCount = 0
 
