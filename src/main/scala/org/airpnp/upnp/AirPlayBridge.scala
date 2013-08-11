@@ -56,7 +56,7 @@ class AirPlayBridge(private val device: Device,
   }
 
   def setProperty(name: String, value: Any) = {
-    //TODO: Debug Log
+    debug("Setting property {} with value {} (not implemented).", name, if (value != null) value.toString else "null")
     future { () }
   }
 
@@ -90,14 +90,14 @@ class AirPlayBridge(private val device: Device,
     }
   }
 
-  def showPhoto(data: => InputStream, length: Int, transition: String) = {
+  def showPhoto(data: () => InputStream, length: Int, transition: String) = {
     val url = dlnaPublisher.publishPhoto("tempid", data, length)
     info("Showing photo with length {}, transition {} is ignored.", length.toString, transition)
     trace("-- Photo URL is {}.", url)
     val setAVTransportURI = avTransport.action("SetAVTransportURI").get
     val msg = createMessage(setAVTransportURI, ("CurrentURI", url), ("CurrentURIMetaData", ""))
     sender(controlUrl, msg).map {
-      case _ => ()
+      case _ => setRate(1.0)
     }
   }
 

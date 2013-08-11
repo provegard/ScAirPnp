@@ -48,7 +48,7 @@ class AirPnpFolder(baseUrl: => String) extends VirtualFolder("AirPnp", null) wit
     notifyRefresh()
   }
 
-  def publishPhoto(id: String, data: => InputStream, len: Int): String = {
+  def publishPhoto(id: String, data: () => InputStream, len: Int): String = {
     val resource = new StreamablePhoto(id, data, len)
     val url = publishResource(id, resource)
     debug("Publishing photo with id {} of length {} at {}.", id, len.toString, url)

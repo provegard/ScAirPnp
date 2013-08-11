@@ -45,7 +45,7 @@ class PhotoRoute(private val apDevice: AirPlayDevice) extends RouteHandler with 
     // future, do these two things concurrently!
     val data = Util.readAllBytes(request.getInputStream)
 
-    apDevice.showPhoto(new ByteArrayInputStream(data), length, transition).onComplete {
+    apDevice.showPhoto(() => new ByteArrayInputStream(data), length, transition).onComplete {
       case Success(_) => response.respond(withStatus(200))
       case Failure(t) => RouteHelper.internalServerError(response, t)
     }

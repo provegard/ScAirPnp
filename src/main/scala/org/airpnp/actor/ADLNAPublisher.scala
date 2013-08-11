@@ -12,8 +12,8 @@ sealed case class Done(ret: String)
 
 class ADLNAPublisher(delegee: org.airpnp.dlna.DLNAPublisher) extends Actor with DLNAPublisher with Logging { self =>
 
-  def publishPhoto(id: String, data: => InputStream, len: Int) = {
-    ADLNAPublisher.this !? PublishPhoto(id, () => data, len) match {
+  def publishPhoto(id: String, data: () => InputStream, len: Int) = {
+    ADLNAPublisher.this !? PublishPhoto(id, data, len) match {
       case Done(url) => url
       case _ => throw new IllegalStateException("Unknown reply from PublishPhoto.")
     }
@@ -35,7 +35,7 @@ class ADLNAPublisher(delegee: org.airpnp.dlna.DLNAPublisher) extends Actor with 
     loop {
       react {
         case pp: PublishPhoto =>
-          val url = delegee.publishPhoto(pp.id, { pp.data() }, pp.len)
+          val url = delegee.publishPhoto(pp.id, () => pp.data(), pp.len)
           sender ! Done(url)
 
         case pm: PublishMovie =>

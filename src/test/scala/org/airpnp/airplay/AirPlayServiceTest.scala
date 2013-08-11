@@ -31,7 +31,7 @@ private class FakeAirPlayDevice(name: String, udn: String) extends BaseAirPlayDe
     println("stop")
     future { () }
   }
-  def showPhoto(data: => InputStream, length: Int, transition: String) = {
+  def showPhoto(data: () => InputStream, length: Int, transition: String) = {
     println("showPhoto(..., " + length + ", " + transition + ")")
     future { () }
   }

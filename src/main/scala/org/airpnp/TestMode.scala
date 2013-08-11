@@ -10,7 +10,7 @@ trait TestMode extends Logging {
       return
     }
     debug("AirPnp test mode detected, adding test content to the AirPnp folder.")
-    folder.publishPhoto("photo1", { getClass.getResourceAsStream("/org/airpnp/lena.jpg") }, 27172)
+    folder.publishPhoto("photo1", () => getClass.getResourceAsStream("/org/airpnp/lena.jpg"), 27172)
     folder.publishMovie("video1", "http://www.cybertechmedia.com/samples/hunterdouglas.mov")
   }
 
