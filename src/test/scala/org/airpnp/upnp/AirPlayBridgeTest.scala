@@ -20,12 +20,13 @@ import org.hamcrest.Description
 import org.fest.assertions.Assertions.assertThat
 import org.airpnp.airplay.DurationAndPosition
 import java.io.InputStream
+import org.airpnp.TraceLogging
 
 private abstract class FakeSender {
   def send(url: String, msg: SoapMessage): Future[SoapMessage]
 }
 
-class AirPlayBridgeTest {
+class AirPlayBridgeTest extends TraceLogging {
   type InputStreamFactory = () => InputStream
 
   private var device: Device = null

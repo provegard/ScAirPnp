@@ -23,8 +23,9 @@ import org.fest.assertions.Assertions.assertThat
 import org.testng.annotations.Test
 import javax.jmdns.ServiceInfo
 import org.airpnp.dlna.DLNAPublisher
+import org.airpnp.TraceLogging
 
-class DevicePublisherTest {
+class DevicePublisherTest extends TraceLogging {
   private def createDevice(baseUrl: String) = {
     var is = getClass.getResourceAsStream("/org/airpnp/upnp/mediarenderer/root.xml")
     val device = new Device(XML.load(is), baseUrl)

@@ -9,6 +9,7 @@ import org.airpnp.Util
 import org.airpnp.airplay.protocol.AirPlayHttpServer
 import java.net.InetSocketAddress
 import org.slf4j.LoggerFactory
+import org.airpnp.TraceLogging
 
 private class FakeAirPlayDevice(name: String, udn: String) extends BaseAirPlayDevice(name, udn) {
   def getScrub() = {
@@ -45,13 +46,10 @@ private class FakeAirPlayDevice(name: String, udn: String) extends BaseAirPlayDe
   }
 }
 
-class AirPlayServiceTest {
+class AirPlayServiceTest extends TraceLogging {
 
   @Test(groups = Array("Manual"))
   def testRegisterAirPlayService() {
-    val logger = LoggerFactory.getLogger("org.airpnp").asInstanceOf[ch.qos.logback.classic.Logger]
-    logger.setLevel(ch.qos.logback.classic.Level.TRACE)
-    
     val port = Util.findPort()
     val addr = InetAddress.getLocalHost
     val apDevice = new FakeAirPlayDevice("AirPlayServiceTest", "uuid:abcdefghijklmn")

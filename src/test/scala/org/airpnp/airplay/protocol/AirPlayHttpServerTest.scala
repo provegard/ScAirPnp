@@ -23,8 +23,9 @@ import scala.xml.NodeSeq
 import org.mockito.Matchers
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
+import org.airpnp.TraceLogging
 
-class AirPlayHttpServerTest {
+class AirPlayHttpServerTest extends TraceLogging {
 
   private var port: Int = 0
   private var server: AirPlayHttpServer = null
