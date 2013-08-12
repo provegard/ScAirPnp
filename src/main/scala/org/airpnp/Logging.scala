@@ -6,10 +6,10 @@ import org.slf4j.Logger
 trait Logging {
     protected val logger: Logger = LoggerFactory.getLogger(getClass)
     
-    protected def debug(msg: String, os: AnyRef*) = logger.debug(msg, os: _*)
-    protected def trace(msg: String, os: AnyRef*) = logger.trace(msg, os: _*)
-    protected def info(msg: String, os: AnyRef*) = logger.info(msg, os: _*)
-    protected def warn(msg: String, os: AnyRef*) = logger.warn(msg, os: _*)
-    protected def error(msg: String, os: AnyRef*) = logger.error(msg, os: _*)
+    protected def debug(msg: String, os: Any*) = logger.debug(msg, os.map(_.toString))
+    protected def trace(msg: String, os: Any*) = logger.trace(msg, os.map(_.toString))
+    protected def info(msg: String, os: Any*) = logger.info(msg, os.map(_.toString))
+    protected def warn(msg: String, os: Any*) = logger.warn(msg, os.map(_.toString))
+    protected def error(msg: String, os: Any*) = logger.error(msg, os.map(_.toString))
     protected def error(msg: String, t: Throwable) = logger.error(msg, t)
 }
