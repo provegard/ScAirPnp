@@ -1,5 +1,6 @@
 package org.airpnp.actor
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.actors.Actor
 import scala.actors.Actor._
 import org.airpnp.Logging
@@ -11,6 +12,10 @@ import java.util.concurrent.CountDownLatch
 import scala.collection.mutable.HashSet
 import org.airpnp.airplay.MDnsServiceHost
 import java.net.InetAddress
+import scala.util.Success
+import scala.util.Failure
+import org.airpnp.dlna.DLNAPublisher
+import scala.concurrent.Promise
 
 class CoordinatorOptions {
   var deviceBuilder: Actor = null
@@ -23,7 +28,7 @@ class CoordinatorOptions {
   var address: InetAddress = null
 }
 
-class Coordinator(private val options: CoordinatorOptions) extends Actor with Logging {
+class Coordinator(options: CoordinatorOptions) extends BaseActor with TestMode {
   private val deviceBuilder = options.deviceBuilder
   private val deviceDiscovery = options.deviceDiscovery
   private val devicePublisher = options.devicePublisher
@@ -31,7 +36,7 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
   private val foundUdns = new HashSet[String]()
   private val ignoredUdns = new HashSet[String]()
   private val depActors = Seq(deviceBuilder, deviceDiscovery, devicePublisher,
-      options.dlnaPublisher)
+    options.dlnaPublisher)
 
   private var stopCount = 0
 
@@ -46,6 +51,8 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
       //        checkLiveness ! DoLivenessCheck(devices.values.toList)
       //      }
     })
+
+  override def toString() = "Coordinator"
 
   override def start(): Actor = {
     depActors.filter(_ != null).foreach(_.start())
@@ -74,6 +81,21 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
         case dr: DeviceReady =>
           devicePublisher ! Publish(dr.device)
 
+        case TriggerPMSFolderDiscovery(udn, location, promise) =>
+          trace("Will trigger PMS folder discovery.")
+          val reply = deviceBuilder !? Build(udn, location, true)
+          reply match {
+            case DeviceReady(device) =>
+              val s = sender
+              forceFolderDiscovery(device, promise)
+            case x: DeviceShouldBeIgnored =>
+              error("Cannot force PMS folder directory because: {}", x.reason)
+              sender ! promise.failure(null)
+          }
+
+        case MaybePublishTestContent =>
+          maybeAddTestContent(options.dlnaPublisher.asInstanceOf[DLNAPublisher])
+
         case Stop =>
           //TODO: Waitall!
           schedulers.foreach(_ ! Stop)
@@ -82,6 +104,44 @@ class Coordinator(private val options: CoordinatorOptions) extends Actor with Lo
           sender ! Stopped
           exit
       }
+    }
+  }
+
+  private def forceFolderDiscovery(device: Device, promise: Promise[Unit]) {
+    debug("Forcing PMS folder discovery.")
+
+    device.getServiceById("urn:upnp-org:serviceId:ContentDirectory") match {
+      case Some(service) =>
+        service.action("Browse") match {
+          case Some(action) =>
+
+            val comm = new DeviceCommunicator(device)
+            comm.start()
+            val sender = comm.createSoapSender()
+
+            val msg = action.createSoapMessage(("ObjectID", "0"),
+              ("BrowseFlag", "BrowseDirectChildren"),
+              ("Filter", "*"),
+              ("StartingIndex", "0"),
+              ("RequestedCount", "0"), // all
+              ("SortCriteria", "")) // no sorting
+            sender(service.getControlURL, msg).onComplete {
+              case Success(reply) =>
+                trace("Got successful browse reply from PMS.")
+                comm !? Stop
+                promise.success(())
+              case Failure(t) =>
+                error("Failed to browse PMS's root folder.", t)
+                comm !? Stop
+                promise.failure(t)
+            }
+          case None =>
+            error("PMS's ContentDirectory service misses the Browse action.")
+            promise.failure(null)
+        }
+      case None =>
+        error("PMS misses the ContentDirectory service.")
+        promise.failure(null)
     }
   }
 }

@@ -15,8 +15,10 @@ object DeviceDiscovery {
   private val EXTRA_WAIT_TIME = 500l
 }
 
-class DeviceDiscovery extends Actor with Logging {
+class DeviceDiscovery extends BaseActor {
 
+  override def toString() = "Device discovery"
+  
   def act() = {
     loop {
       react {

@@ -10,6 +10,7 @@ import org.testng.Assert.fail
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.testng.annotations.BeforeClass
+import scala.util.Try
 
 class CoordinatorIgnoreDeviceFoundTest {
   private var result = false

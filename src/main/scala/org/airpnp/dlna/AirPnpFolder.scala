@@ -68,7 +68,7 @@ class AirPnpFolder(baseUrl: => String) extends VirtualFolder("AirPnp", null) wit
     }
     published += ((id, resource))
     addDynamicResource(resource)
-    baseUrl + "/get/" + resource.getResourceId
+    baseUrl + "/get/" + resource.getResourceId + "/" + resource.getName
   }
 
   def unpublish(id: String) {

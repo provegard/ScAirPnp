@@ -1,15 +1,13 @@
 package org.airpnp
 
-import java.net.InetSocketAddress
-import net.pms.PMS
 import java.net.InetAddress
-import net.pms.network.NetworkConfiguration
-import net.pms.configuration.PmsConfiguration
-import scala.xml.Node
-import java.net.URLConnection
-import java.net.HttpURLConnection
 import java.net.URL
+
+import scala.xml.Node
 import scala.xml.XML
+
+import net.pms.PMS
+import net.pms.network.NetworkConfiguration
 
 object Networking {
 
@@ -27,6 +25,7 @@ object Networking {
   }
 
   def getInetAddress(): InetAddress = {
+    // More or less copied from PMS's HTTPServer class.
     val configuration = PMS.getConfiguration()
     val hostname = configuration.getServerHostname
     if (isEmpty(hostname)) {

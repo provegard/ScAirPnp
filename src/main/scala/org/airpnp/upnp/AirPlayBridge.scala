@@ -9,24 +9,41 @@ import org.airpnp.upnp.UPNP.{ toDuration, parseDuration }
 import scala.concurrent.Future
 import java.io.InputStream
 import org.airpnp.dlna.DLNAPublisher
+import scala.util.Success
+import scala.util.Failure
 
 object AirPlayBridge {
   private val AVTRANSPORT_SERVICE_TYPE = "urn:schemas-upnp-org:service:AVTransport:1"
+  private type SoapSender = (String, SoapMessage) => Future[SoapMessage]
 }
 
-class AirPlayBridge(private val device: Device,
-  private val sender: (String, SoapMessage) => Future[SoapMessage],
+class AirPlayBridge(device: Device,
+  originalSender: AirPlayBridge.SoapSender,
   dlnaPublisher: DLNAPublisher) extends BaseAirPlayDevice(device.getFriendlyName, device.getUdn) with Logging {
 
   //TODO: Assume that required actions exist here, verify when we build the device!!!
   // Only Pause is optional!!
 
-  //TODO: Logging! Wrap sender and trace command/reply
-
+  private var traceLogId = 0
   private val instanceId = 0
   private val avTransport = device.getServices.find(s => s.getServiceType == AirPlayBridge.AVTRANSPORT_SERVICE_TYPE).get
   private val controlUrl = avTransport.getControlURL
   private def createMessage(a: Action, params: (String, Any)*) = a.createSoapMessage(("InstanceID", instanceId) +: params: _*)
+
+  private val sender: AirPlayBridge.SoapSender = (url, msg) => {
+    traceLogId += 1
+    val id = traceLogId
+    trace("[{}] Sending SOAP message to {} @ {}: {}", id, device.getFriendlyName, url, msg.toFunctionLikeString)
+    originalSender(url, msg).andThen {
+      case Success(reply) =>
+        trace("[{}] Got SOAP reply from {}: {}", id, device.getFriendlyName, reply.toFunctionLikeString)
+        reply
+      case Failure(t) =>
+        trace("[{}] Got error of type {} from {} with message: {}", id, t.getClass.getSimpleName,
+          device.getFriendlyName, t.getMessage)
+        t
+    }
+  }
 
   def getScrub() = {
     val a = avTransport.action("GetPositionInfo").get

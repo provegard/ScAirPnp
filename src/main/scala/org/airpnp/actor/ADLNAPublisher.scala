@@ -5,12 +5,12 @@ import java.io.InputStream
 import org.airpnp.Logging
 import org.airpnp.dlna.DLNAPublisher
 
-sealed case class PublishPhoto(id: String, data: () => InputStream, len: Int)
-sealed case class PublishMovie(id: String, url: String)
-sealed case class Unpublish(id: String)
-sealed case class Done(ret: String)
+private case class PublishPhoto(id: String, data: () => InputStream, len: Int)
+private case class PublishMovie(id: String, url: String)
+private case class Unpublish(id: String)
+private case class Done(ret: String)
 
-class ADLNAPublisher(delegee: org.airpnp.dlna.DLNAPublisher) extends Actor with DLNAPublisher with Logging { self =>
+class ADLNAPublisher(delegee: org.airpnp.dlna.DLNAPublisher) extends BaseActor with DLNAPublisher { self =>
 
   def publishPhoto(id: String, data: () => InputStream, len: Int) = {
     ADLNAPublisher.this !? PublishPhoto(id, data, len) match {

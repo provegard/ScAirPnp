@@ -19,9 +19,11 @@ import org.airpnp.upnp.AirPlayBridge
 import org.airpnp.upnp.Device
 import org.airpnp.dlna.DLNAPublisher
 
-class DevicePublisher(mdnsHost: MDnsServiceHost, addr: InetAddress, dlnaPublisher: DLNAPublisher) extends Actor with Logging {
+class DevicePublisher(mdnsHost: MDnsServiceHost, addr: InetAddress, dlnaPublisher: DLNAPublisher) extends BaseActor {
   private val published = new HashMap[String, DevicePublisher.PublishedStuff]()
 
+  override def toString() = "Device publisher with " + published.size + " published devices"
+  
   def act() {
     loop {
       react {

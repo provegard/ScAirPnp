@@ -1,6 +1,7 @@
 
 package org.airpnp
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import java.net.DatagramPacket
 import scala.actors.Actor
 import org.airpnp.actor.Coordinator
@@ -20,6 +21,15 @@ import net.pms.external.AdditionalFolderAtRoot
 import net.pms.external.ExternalListener
 import net.pms.PMS
 import org.airpnp.actor.ADLNAPublisher
+import org.airpnp.actor.Scheduling
+import org.airpnp.actor.TriggerPMSFolderDiscovery
+import org.airpnp.actor.TriggerPMSFolderDiscovery
+import java.net.URL
+import scala.concurrent.Promise
+import scala.util.Try
+import org.airpnp.actor.MaybePublishTestContent
+import org.airpnp.actor.TestMode
+import scala.util.Success
 
 class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging with TestMode {
 
@@ -27,19 +37,27 @@ class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging w
   private var mdnsHost: MDnsServiceHost = null
   private var rootFolder: AirPnpFolder = null
 
-  info("AirPnp plugin starting!")
   if (!Util.hasJDKHttpServer) {
     error("AirPnp needs a JDK rather than a JRE for HTTP server support.")
   } else {
-    rootFolder = new AirPnpFolder({PMS.get.getServer.getURL})
-    maybeAddTestContent(rootFolder)
-    
+    info("AirPnp plugin is starting up!")
+    // Create our root folder, which also happens to by a DLNA publisher.
+    // The URL arg is by-name so it is "lazily" evaluated, which is necessary
+    // since PMS's HTTPServer hasn't started yet, so the URL is invalid.
+    rootFolder = new AirPnpFolder({ PMS.get.getServer.getURL })
+
+    // Find out which network address we should listen on.
     val addr = Networking.getInetAddress
+
+    // Start the host for mDNS services.
     mdnsHost = new DefaultMDnsServiceHost()
     mdnsHost.start(addr)
+
+    // Assemble actors and ultimately the Coordinator actor. Don't start
+    // things yet.
     val db = new DeviceBuilder(Networking.createDownloader())
     val dd = new DeviceDiscovery
-    val dl = new ADLNAPublisher(rootFolder)
+    val dl = new ADLNAPublisher(rootFolder) // actor wrapper
     val dp = new DevicePublisher(mdnsHost, addr, dl)
 
     val options = new CoordinatorOptions()
@@ -50,9 +68,41 @@ class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging w
     options.address = addr
 
     coordinator = new Coordinator(options)
-    coordinator.start()
 
+    // Install a socket factory that creates datagram sockets that allow
+    // us to intercept UPnP traffic.
     InterceptingDatagramSocketImplFactory.install(packetInterceptor(coordinator))
+
+    waitForPmsHttpServer(250).future.map {
+      case _ =>
+        info("AirPnp detected that the PMS HTTP server has started, startup continues.")
+        coordinator.start()
+
+        val p = Promise[Unit]()
+        coordinator ! TriggerPMSFolderDiscovery(PMS.get.usn,
+          new URL(new URL(PMS.get.getServer.getURL), "/description/fetch").toString, p)
+          
+        p.future.andThen {
+          case Success(_) => coordinator ! MaybePublishTestContent
+        }
+    }
+  }
+
+  private def waitForPmsHttpServer(interval: Long): Promise[Unit] = {
+    val p = Promise[Unit]()
+    trace("Waiting for PMS's HTTP server to be started with interval {} ms...", interval)
+    var s: Actor = null
+    s = Scheduling.scheduler(interval, interval) {
+      val server = PMS.get.getServer
+      if (server.getHost() != null) {
+        trace("PMS's HTTP server has started!")
+        s ! Stop
+        p.success(())
+      } else {
+        trace("PMS's HTTP server has not started yet.")
+      }
+    }
+    p
   }
 
   //TODO: Move the function somewhere else...
@@ -62,16 +112,23 @@ class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging w
       Actor.actor { target ! DeviceFound(msg.getUdn.get, msg.getLocation.get) }
     }
   }
-  
+
   def config(): javax.swing.JComponent = null
 
   def name(): String = "AirPnp"
 
   def shutdown() {
     info("AirPnp plugin shutting down!")
-    mdnsHost.stop()
-    coordinator !? Stop
+    if (mdnsHost != null) {
+      mdnsHost.stop()
+    }
+    if (coordinator != null) {
+      coordinator !? Stop
+    }
   }
-  
-  def getChild(): DLNAResource = rootFolder
+
+  def getChild(): DLNAResource = {
+    trace("AirPnp's additional folder at root was requested.")
+    rootFolder
+  }
 }

@@ -17,9 +17,11 @@ object DeviceCommunicator {
   private case class Reply(val reply: Try[SoapMessage])
 }
 
-class DeviceCommunicator(private val device: Device) extends Actor with Logging {
+class DeviceCommunicator(private val device: Device) extends BaseActor {
 
   private val client = new SoapClient()
+  
+  override def toString() = "Device communicator for " + device.getFriendlyName
 
   def act() {
     loop {
