@@ -10,7 +10,13 @@ class StreamablePhoto(id: String, streamFactory: () => InputStream,
   val length: Long) extends DLNAResource with Logging {
   private val name = id + ".jpg" // Assume JPEG for all iDevice photos...
   setFormat(FormatFactory.getAssociatedFormat(name))
-  setMedia(new DLNAMediaInfo())
+  setMedia({
+    val media = new DLNAMediaInfo()
+    //TODO: set width, height and BPP also?
+    media.setCodecV("jpg")
+    media.setContainer("jpg")
+    media
+  })
 
   override def isFolder() = false
   override def getInputStream() = {
