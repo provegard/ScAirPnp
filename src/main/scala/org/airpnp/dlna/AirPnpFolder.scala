@@ -16,7 +16,11 @@ class AirPnpFolder(baseUrl: => String) extends VirtualFolder("AirPnp", null) wit
   private val published = new HashMap[String, DLNAResource]()
 
   private def addDynamicResource(child: DLNAResource) {
+    val sizeBefore = getChildren().size
     addChild(child)
+    if (sizeBefore == getChildren().size) {
+      throw new IllegalStateException("Failed to add DLNA resource: " + child)
+    }
     notifyRefresh()
   }
 
