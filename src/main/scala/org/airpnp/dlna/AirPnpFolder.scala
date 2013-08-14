@@ -15,14 +15,15 @@ class AirPnpFolder(baseUrl: => String) extends VirtualFolder("AirPnp", null) wit
 
   private val published = new HashMap[String, DLNAResource]()
 
-  private def addDynamicResource(child: DLNAResource) {
+  private def addDynamicResource(child: DLNAResource): Boolean = {
     val sizeBefore = getChildren().size
     addChild(child)
     if (sizeBefore == getChildren().size) {
       error("Failed to add DLNA resource: {}", child)
-      return
+      return false
     }
     notifyRefresh()
+    true
   }
 
   private def removeDynamicResource(child: DLNAResource) {
@@ -69,11 +70,14 @@ class AirPnpFolder(baseUrl: => String) extends VirtualFolder("AirPnp", null) wit
 
   private def publishResource(id: String, resource: DLNAResource): String = {
     if (published.contains(id)) {
-      throw new IllegalStateException("Alread published: " + id)
+      unpublish(id)
     }
     published += ((id, resource))
-    addDynamicResource(resource)
-    baseUrl + "/get/" + resource.getResourceId + "/" + resource.getName
+    if (addDynamicResource(resource)) {
+      baseUrl + "/get/" + resource.getResourceId + "/" + resource.getName
+    } else {
+      baseUrl + "/get/WONT_WORK"
+    }
   }
 
   def unpublish(id: String) {
