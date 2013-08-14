@@ -1,18 +1,14 @@
 package org.airpnp.upnp
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.future
-import scala.concurrent.Future
-import java.net.URL
-import java.net.HttpURLConnection
 import java.io.IOException
-import java.net.Socket
-import java.net.InetAddress
-import java.io.OutputStream
-import scala.collection.mutable.MutableList
 import java.io.InputStream
+import java.io.OutputStream
+import java.net.InetAddress
+import java.net.Socket
+import java.net.URL
+
 import scala.collection.mutable.HashMap
-import java.io.ByteArrayInputStream
+import scala.collection.mutable.MutableList
 
 /**
  * Simple HTTP/SOAP client. We could use HttpURLConnection, except it doesn't
@@ -30,9 +26,9 @@ class SoapClient {
       val headers = new MutableList[(String, String)]()
       if (useMPost) {
         headers += (("MAN", "\"http://schemas.xmlsoap.org/soap/envelope/\"; ns=01"))
-        headers += (("01-SOAPACTION", message.getHeader))
+        headers += (("01-SOAPACTION", message.getSoapAction))
       } else {
-        headers += (("SOAPACTION", message.getHeader))
+        headers += (("SOAPACTION", message.getSoapAction))
       }
 
       writeRequest(socket.getOutputStream, url, if (useMPost) "M-POST" else "POST", headers, data)
@@ -69,15 +65,18 @@ class SoapClient {
 
   private def writeRequest(os: OutputStream, url: URL, method: String, headers: Seq[(String, String)],
     data: Array[Byte]) {
-    val allHeaders = Seq(("Host", url.getHost),
+    val sb = new StringBuilder()
+    val allHeaders = Seq(("Host", url.getHost + ":" + url.getPort),
       ("Content-Length", data.length.toString),
       ("Content-Type", "text/xml; charset=\"utf-8\""),
-      ("User-Agent", "airpnp/0.1")) ++ headers
-    os.write("%s %s HTTP/1.1\r\n".format(method, url.getPath).getBytes)
+      ("User-Agent", "OS/1.0 UPnP/1.0 AirPnp/0.1")) ++ headers
+    sb.append("%s %s HTTP/1.1\r\n".format(method, url.getPath))
     allHeaders.foreach(pair => {
-      os.write("%s: %s\r\n".format(pair._1, pair._2).getBytes)
+      sb.append("%s: %s\r\n".format(pair._1, pair._2))
     })
-    os.write("\r\n".getBytes)
+    sb.append("\r\n")
+    val text = sb.toString
+    os.write(sb.toString.getBytes("US-ASCII"))
     os.write(data)
     os.flush()
   }
@@ -88,13 +87,17 @@ class SoapClient {
     if (first.length < 3) {
       throw new IOException("Invalid HTTP status line: " + firstLine)
     }
-    val statusCode = Integer.parseInt(first(1))
+    val statusCode = first(1).toInt
     while (true) {
       SoapClient.readLine(is) match {
         case x if x == "" => return statusCode
         case y => {
           val parts = y.split("\\s*:\\s*")
-          headers += ((parts(0).toUpperCase, parts(1)))
+          parts.length match {
+            case 1 => headers += ((parts(0).toUpperCase, ""))
+            case 2 => headers += ((parts(0).toUpperCase, parts(1)))
+            case _ => // ignore
+          }
         }
       }
     }
