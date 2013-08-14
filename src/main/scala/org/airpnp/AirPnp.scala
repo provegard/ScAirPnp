@@ -33,6 +33,8 @@ import scala.util.Success
 import org.airpnp.actor.GetPublishedDevices
 import org.airpnp.actor.GetPublishedDevicesReply
 import org.airpnp.ui.AirPnpPanel
+import net.pms.external.ExternalFactory
+import net.pms.configuration.PmsConfiguration
 
 class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging with TestMode {
 
@@ -82,9 +84,10 @@ class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging w
         coordinator.start()
 
         val p = Promise[Unit]()
+        //TODO: We might be able to skip this if pmsConfiguration.getUseCache() is true
         coordinator ! TriggerPMSFolderDiscovery(PMS.get.usn,
           new URL(new URL(PMS.get.getServer.getURL), "/description/fetch").toString, p)
-          
+
         p.future.andThen {
           case Success(_) => coordinator ! MaybePublishTestContent
         }
@@ -126,16 +129,36 @@ class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging w
 
   def shutdown() {
     info("AirPnp plugin shutting down!")
-    if (mdnsHost != null) {
-      mdnsHost.stop()
-    }
+    // Must stop the Coordinator first, so that MDns services can
+    // be unregistered successfully.
     if (coordinator != null) {
       coordinator !? Stop
+    }
+    if (mdnsHost != null) {
+      mdnsHost.stop()
     }
   }
 
   def getChild(): DLNAResource = {
     trace("AirPnp's additional folder at root was requested.")
     rootFolder
+  }
+}
+
+object AirPnp {
+  def main(args: Array[String]) {
+    // Main method for plugin testing.
+    PMS.setConfiguration(new HookingPmsConfiguration())
+    PMS.get()
+  }
+
+  class HookingPmsConfiguration extends PmsConfiguration {
+    override def getPluginDirectory() = {
+      // This is our cue to register AirPnp. Actually we will be initialized
+      // a little bit earlier than normally, buy we're approximately in the
+      // correct phase of PMS startup.
+      ExternalFactory.registerListener(new AirPnp())
+      super.getPluginDirectory
+    }
   }
 }
