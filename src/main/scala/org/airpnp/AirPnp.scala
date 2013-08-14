@@ -30,6 +30,9 @@ import scala.util.Try
 import org.airpnp.actor.MaybePublishTestContent
 import org.airpnp.actor.TestMode
 import scala.util.Success
+import org.airpnp.actor.GetPublishedDevices
+import org.airpnp.actor.GetPublishedDevicesReply
+import org.airpnp.ui.AirPnpPanel
 
 class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging with TestMode {
 
@@ -113,7 +116,11 @@ class AirPnp extends ExternalListener with AdditionalFolderAtRoot with Logging w
     }
   }
 
-  def config(): javax.swing.JComponent = null
+  def config() = coordinator !? GetPublishedDevices() match {
+    //TODO: pass downloader also
+    case GetPublishedDevicesReply(devices) => new AirPnpPanel(devices)
+    case _ => null
+  }
 
   def name(): String = "AirPnp"
 
