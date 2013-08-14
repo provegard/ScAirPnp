@@ -15,7 +15,7 @@ class ActionTest {
 
   @Test def shouldBeAbleToCreateASoapMessage() {
     val msg = action.createSoapMessage(("InstanceID", "0"))
-    assertThat(msg.getHeader).isEqualTo("urn:schemas-upnp-org:service:AVTransport:1#GetCurrentTransportActions")
+    assertThat(msg.getSoapAction).isEqualTo("\"urn:schemas-upnp-org:service:AVTransport:1#GetCurrentTransportActions\"")
   }
 
   @Test(expectedExceptions = Array(classOf[IllegalArgumentException]))

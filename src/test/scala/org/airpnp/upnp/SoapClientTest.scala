@@ -3,10 +3,8 @@ package org.airpnp.upnp
 import org.airpnp.http.Response._
 import java.io.StringWriter
 import java.net.InetSocketAddress
-
 import scala.xml.MinimizeMode
 import scala.xml.XML
-
 import org.airpnp.Util
 import org.airpnp.http.Request
 import org.airpnp.http.Response
@@ -16,8 +14,9 @@ import org.fest.assertions.Assertions.assertThat
 import org.testng.annotations.AfterClass
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
+import org.airpnp.TraceLogging
 
-class SoapClientTest {
+class SoapClientTest extends TraceLogging {
   var port: Int = 0
   var server: RoutingHttpServer = null
 
@@ -82,7 +81,7 @@ object SoapClientTest {
     override def handlePOST(request: Request, response: Response) {
       val msg = SoapMessage.parse(request.getInputStream)
       request.getHeader("SOAPACTION").headOption match {
-        case Some(x) if x == msg.getHeader => {
+        case Some(x) if x == msg.getSoapAction => {
           val reply = new SoapMessage(msg.getServiceType, msg.getName + "Reply")
           response.respond(withText(reply.toString).andContentType("text/xml"))
         }
@@ -100,7 +99,7 @@ object SoapClientTest {
       request.getMethod match {
         case "M-POST" => {
           request.getHeader("01-SOAPACTION").headOption match {
-            case Some(x) if x == msg.getHeader => request.getHeader("MAN").headOption match {
+            case Some(x) if x == msg.getSoapAction => request.getHeader("MAN").headOption match {
               case Some(y) if y == "\"http://schemas.xmlsoap.org/soap/envelope/\"; ns=01" => {
                 val reply = new SoapMessage(msg.getServiceType, msg.getName + "Reply")
                 response.respond(withText(reply.toString).andContentType("text/xml"))

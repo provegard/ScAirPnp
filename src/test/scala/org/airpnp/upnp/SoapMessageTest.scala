@@ -25,7 +25,7 @@ class SoapMessageTest {
 
   @Test
   def shouldBeAbleToConstructAHeader() {
-    assertThat(message.getHeader()).isEqualTo("type#action")
+    assertThat(message.getSoapAction).isEqualTo("\"type#action\"")
   }
 
   @Test
@@ -43,7 +43,7 @@ class SoapMessageTest {
   def shouldBeAbleToReturnFunctionLikeString() {
     message.setArgument("foo", "bar")
     message.setArgument("bar", "baz")
-    assertThat(message.toFunctionLikeString).isEqualTo("type#action(foo: bar, bar: baz)")
+    assertThat(message.toFunctionLikeString).isEqualTo("\"type#action\"(foo: bar, bar: baz)")
   }
 
   @Test

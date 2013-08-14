@@ -24,7 +24,7 @@ class SoapMessageParseTest {
 
   @Test
   def shouldParseServiceType() {
-    assertThat(message.getHeader).isEqualTo("type#action")
+    assertThat(message.getSoapAction).isEqualTo("\"type#action\"")
   }
 
   @Test

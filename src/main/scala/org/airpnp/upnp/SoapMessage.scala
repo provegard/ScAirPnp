@@ -49,7 +49,7 @@ class SoapMessage private (private val serviceTypeIn: String, private val nameIn
 
   def getServiceType() = serviceType
   def getName() = name
-  def getHeader() = serviceType + "#" + name
+  def getSoapAction() = "\"" + serviceType + "#" + name + "\""
 
   def getArgument(name: String, defaultValue: String): String = {
     val elems = bodyElement.getElementsByTagName(name)
@@ -84,7 +84,7 @@ class SoapMessage private (private val serviceTypeIn: String, private val nameIn
   def isFault() = getName == "Fault"
 
   def toFunctionLikeString() = {
-    getHeader + "(" +
+    getSoapAction + "(" +
       bodyElement.getChildElements()
       .map(_.asInstanceOf[Element])
       .map(e => e.getNodeName + ": " + e.getTextContent).mkString(", ") + ")"
