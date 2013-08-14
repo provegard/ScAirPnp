@@ -22,6 +22,8 @@ case object Touch
 case object CheckLiveness
 case class TriggerPMSFolderDiscovery(val udn: String, val location: String, val promise: Promise[Unit])
 case object MaybePublishTestContent
+case class GetPublishedDevices
+case class GetPublishedDevicesReply(devices: Seq[Device])
 
 object Scheduling {
   // http://stackoverflow.com/questions/1224342/sleeping-actors

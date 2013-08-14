@@ -27,14 +27,17 @@ class DevicePublisher(mdnsHost: MDnsServiceHost, addr: InetAddress, dlnaPublishe
   def act() {
     loop {
       react {
-        case x: Publish => {
-          info("Found media renderer '{}', now publishing!", x.device.getFriendlyName)
+        case GetPublishedDevices() =>
+          sender ! GetPublishedDevicesReply(published.values.map(_.device).toList)
+        
+        case Publish(device) => {
+          info("Found media renderer '{}', now publishing!", device.getFriendlyName)
 
           val port = Util.findPort
-          val publishedStuff = new DevicePublisher.PublishedStuff(x.device,
+          val publishedStuff = new DevicePublisher.PublishedStuff(device,
             new InetSocketAddress(addr, port), dlnaPublisher)
           publishedStuff.startAll(mdnsHost)
-          published += ((x.device.getUdn, publishedStuff))
+          published += ((device.getUdn, publishedStuff))
         }
 
         case Stop => {

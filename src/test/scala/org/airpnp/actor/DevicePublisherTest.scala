@@ -1,5 +1,6 @@
 package org.airpnp.actor
 
+import scala.collection.JavaConverters._
 import org.mockito.Mockito.mock
 import org.airpnp.http.Response._
 import java.net.InetAddress
@@ -24,6 +25,7 @@ import org.testng.annotations.Test
 import javax.jmdns.ServiceInfo
 import org.airpnp.dlna.DLNAPublisher
 import org.airpnp.TraceLogging
+import org.testng.Assert
 
 class DevicePublisherTest extends TraceLogging {
   private def createDevice(baseUrl: String) = {
@@ -56,9 +58,8 @@ class DevicePublisherTest extends TraceLogging {
 
       // 1. Publish the device and find out the port for the AirPlay server.
       publisher ! Publish(device)
-      if (!host.registered.await(2000, TimeUnit.MILLISECONDS)) {
-        throw new IllegalStateException("Publishing failed")
-      }
+      waitForRegistration(host)
+
       val service = host.services.head
       val airPlayPort = service.getPort()
       val airPlayUrl = "http://localhost:" + airPlayPort
@@ -66,15 +67,55 @@ class DevicePublisherTest extends TraceLogging {
       val is = new URL(airPlayUrl + "/playback-info").openStream()
       val plist = XML.load(is)
       is.close()
-      
+
       val firstReal = (plist \\ "real")(0).text
       assertThat(firstReal).isEqualTo("59.0")
-      
+
     } finally {
       if (publisher.getState == Actor.State.Runnable) {
         publisher !? Stop
       }
       deviceServer.stop(0)
+    }
+  }
+
+  @Test def testQueryingPublishedDevices() {
+    val devicePort = Util.findPort()
+    val url = "http://localhost:" + devicePort
+    val device = createDevice(url)
+    val deviceServer = new DevicePublisherTest.SoapServer(new InetSocketAddress(InetAddress.getByName("localhost"), devicePort))
+
+    val host = new DevicePublisherTest.FakeHost()
+    val addr = InetAddress.getByName("localhost")
+    val publisher = new DevicePublisher(host, addr, mock(classOf[DLNAPublisher]))
+
+    try {
+      deviceServer.start()
+      publisher.start()
+
+      // 1. Publish the device and find out the port for the AirPlay server.
+      publisher ! Publish(device)
+      waitForRegistration(host)
+
+      publisher !? (2000, GetPublishedDevices()) match {
+        case Some(msg) => msg match {
+          case GetPublishedDevicesReply(devices) =>
+            assertThat(devices.asJava).contains(device)
+          case _ => Assert.fail("Didn't get GetPublishedDevicesReply")
+        }
+        case None => Assert.fail("Didn't get GetPublishedDevices reply in time")
+      }
+    } finally {
+      if (publisher.getState == Actor.State.Runnable) {
+        publisher !? Stop
+      }
+      deviceServer.stop(0)
+    }
+  }
+
+  private def waitForRegistration(host: DevicePublisherTest.FakeHost) {
+    if (!host.registered.await(2000, TimeUnit.MILLISECONDS)) {
+      throw new IllegalStateException("Publishing failed")
     }
   }
 }

@@ -63,6 +63,9 @@ class Coordinator(options: CoordinatorOptions) extends BaseActor with TestMode {
   def act() = {
     loop {
       react {
+        case msg: GetPublishedDevices =>
+          devicePublisher.forward(msg)
+          
         case df: DeviceFound =>
           if (!ignoredUdns.contains(df.udn)) {
             if (!foundUdns.contains(df.udn)) {
