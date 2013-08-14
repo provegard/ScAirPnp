@@ -1,5 +1,6 @@
 package org.airpnp.upnp
 
+import scala.collection.JavaConversions._
 import scala.xml.Node
 import java.net.URL
 
@@ -21,4 +22,6 @@ class Service(protected val start: Node, private val baseUrl: String) extends Xm
   
   def getSCPDURL() = new URL(baseUrlUrl, text(_ \ "SCPDURL").get).toString
   def getControlURL() = new URL(baseUrlUrl, text(_ \ "controlURL").get).toString
+  
+  def getActions(): Seq[Action] = actions.values.toSeq
 }

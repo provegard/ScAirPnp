@@ -12,6 +12,10 @@ class InitializedServiceTest {
     val device = buildInitializedMediaRenderer("http://www.base.com")
     service = device.getServiceById("urn:upnp-org:serviceId:AVTransport").get
   }
+  
+  @Test def shouldExposeActions() {
+    assertThat(service.getActions.size).isEqualTo(15)
+  }
 
   @Test
   def shouldExposeServiceType() {
