@@ -55,7 +55,7 @@ object DevicePublisher {
   private class PublishedStuff(val device: Device, val addr: InetSocketAddress, dlnaPublisher: DLNAPublisher) extends Logging {
 
     private val comm = new DeviceCommunicator(device)
-    private val bridge = new AirPlayBridge(device, comm.createSoapSender(), dlnaPublisher)
+    private val bridge = new AirPlayBridge(device, dlnaPublisher)
     private val httpServer = new AirPlayHttpServer(addr, bridge)
     private val apService = new AirPlayService(bridge, addr.getPort())
 

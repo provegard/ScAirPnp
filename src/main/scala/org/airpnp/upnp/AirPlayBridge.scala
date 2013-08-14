@@ -14,11 +14,9 @@ import scala.util.Failure
 
 object AirPlayBridge {
   private val AVTRANSPORT_SERVICE_TYPE = "urn:schemas-upnp-org:service:AVTransport:1"
-  private type SoapSender = (String, SoapMessage) => Future[SoapMessage]
 }
 
 class AirPlayBridge(device: Device,
-  originalSender: AirPlayBridge.SoapSender,
   dlnaPublisher: DLNAPublisher) extends BaseAirPlayDevice(device.getFriendlyName, device.getUdn) with Logging {
 
   //TODO: Assume that required actions exist here, verify when we build the device!!!
@@ -30,11 +28,11 @@ class AirPlayBridge(device: Device,
   private val controlUrl = avTransport.getControlURL
   private def createMessage(a: Action, params: (String, Any)*) = a.createSoapMessage(("InstanceID", instanceId) +: params: _*)
 
-  private val sender: AirPlayBridge.SoapSender = (url, msg) => {
+  private val sender: Device.SoapSender = (url, msg) => {
     traceLogId += 1
     val id = traceLogId
     trace("[{}] Sending SOAP message to {} @ {}: {}", id, device.getFriendlyName, url, msg.toFunctionLikeString)
-    originalSender(url, msg).andThen {
+    device.soapSender(url, msg).andThen {
       case Success(reply) =>
         trace("[{}] Got SOAP reply from {}: {}", id, device.getFriendlyName, reply.toFunctionLikeString)
         reply

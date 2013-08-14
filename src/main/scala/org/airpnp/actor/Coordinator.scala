@@ -120,7 +120,6 @@ class Coordinator(options: CoordinatorOptions) extends BaseActor with TestMode {
 
             val comm = new DeviceCommunicator(device)
             comm.start()
-            val sender = comm.createSoapSender()
 
             val msg = action.createSoapMessage(("ObjectID", "0"),
               ("BrowseFlag", "BrowseDirectChildren"),
@@ -128,7 +127,7 @@ class Coordinator(options: CoordinatorOptions) extends BaseActor with TestMode {
               ("StartingIndex", "0"),
               ("RequestedCount", "0"), // all
               ("SortCriteria", "")) // no sorting
-            sender(service.getControlURL, msg).onComplete {
+            device.soapSender(service.getControlURL, msg).onComplete {
               case Success(reply) =>
                 trace("Got successful browse reply from PMS.")
                 comm !? Stop

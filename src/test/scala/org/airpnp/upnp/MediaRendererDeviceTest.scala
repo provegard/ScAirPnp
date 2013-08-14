@@ -1,15 +1,17 @@
 package org.airpnp.upnp
 
-import org.fest.assertions.Assertions.assertThat
-import org.testng.annotations.BeforeClass
-import org.testng.annotations.Test
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.future
 import scala.xml.XML
+
+import org.fest.assertions.Assertions.assertThat
+import org.testng.annotations.BeforeMethod
+import org.testng.annotations.Test
 
 class MediaRendererDeviceTest {
   private var device: Device = null
 
-  @BeforeClass
-  def createDevice() {
+  @BeforeMethod def createDevice() {
     val stream = getClass.getResourceAsStream("mediarenderer/root.xml")
     val elem = XML.load(stream)
     device = new Device(elem, "http://www.base.com")
@@ -50,9 +52,30 @@ class MediaRendererDeviceTest {
     val s = device.getServiceById("urn:upnp-org:serviceId:AVTransport")
     assertThat(s).isNotNull()
   }
-  
+
   @Test
   def shouldBeMediaRenderer() {
     assertThat(device.isMediaRenderer).isTrue
   }
+
+  @Test def shouldAllowSettingSoapSender() {
+    val soapSender: Device.SoapSender = (url, msg) => future { null }
+    device.soapSender = soapSender
+    assertThat(device.soapSender).isSameAs(soapSender)
+  }
+
+  @Test(expectedExceptions = Array(classOf[IllegalStateException]))
+  def shouldNotAllowSettingSoapSenderTwice() {
+    val soapSender: Device.SoapSender = (url, msg) => future { null }
+    device.soapSender = soapSender
+    device.soapSender = soapSender
+  }
+
+  @Test def shouldAllowClearingSoapSender() {
+    val soapSender: Device.SoapSender = (url, msg) => future { null }
+    device.soapSender = soapSender
+    device.soapSender = null
+    assertThat(device.soapSender).isNull()
+  }
+
 }

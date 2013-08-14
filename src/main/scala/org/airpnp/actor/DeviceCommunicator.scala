@@ -18,9 +18,9 @@ object DeviceCommunicator {
 }
 
 class DeviceCommunicator(private val device: Device) extends BaseActor {
-
+  device.soapSender = createSoapSender()
   private val client = new SoapClient()
-  
+
   override def toString() = "Device communicator for " + device.getFriendlyName
 
   def act() {
@@ -33,21 +33,21 @@ class DeviceCommunicator(private val device: Device) extends BaseActor {
         case CheckLiveness => {
           //TODO: Ping the device
         }
-        case Stop => {
+        case Stop =>
+          device.soapSender = null
           debug("Communicator for device {} was stopped.", device.getFriendlyName)
           sender ! Stopped
           exit
-        }
-        case m: DeviceCommunicator.Message => {
+
+        case m: DeviceCommunicator.Message =>
           //TODO: If the reply is not a timeout/socket error, update the timestamp
           val t = Try(client.sendMessage(m.url, m.msg))
           sender ! DeviceCommunicator.Reply(t)
-        }
       }
     }
   }
 
-  def createSoapSender(): (String, SoapMessage) => scala.concurrent.Future[SoapMessage] = {
+  private def createSoapSender(): (String, SoapMessage) => scala.concurrent.Future[SoapMessage] = {
     (url, msg) =>
       {
         val p = Promise[SoapMessage]()

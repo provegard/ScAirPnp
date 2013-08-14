@@ -46,8 +46,10 @@ class AirPlayBridgeTest extends TraceLogging {
     publisher = mock(classOf[DLNAPublisher])
 
     val sender = (url: String, msg: SoapMessage) => fakeSender.send(url, msg)
+    device.soapSender = null // clear first
+    device.soapSender = sender
 
-    bridge = new AirPlayBridge(device, sender, publisher)
+    bridge = new AirPlayBridge(device, publisher)
   }
 
   @Test def soapSenderShouldGetControlUrl() {
