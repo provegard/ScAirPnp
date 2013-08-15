@@ -54,29 +54,33 @@ class AirPnpFolder(baseUrl: => String) extends VirtualFolder("AirPnp", null) wit
     notifyRefresh()
   }
 
-  def publishPhoto(id: String, data: () => InputStream, len: Int): String = {
+  def publishPhoto(id: String, data: () => InputStream, len: Int) = {
     val resource = new StreamablePhoto(id, data, len)
     val url = publishResource(id, resource)
-    debug("Publishing photo with id {} of length {} at {}.", id, len.toString, url)
+    if (url.isDefined) {
+      debug("Publishing photo with id {} of length {} at {}.", id, len.toString, url)
+    }
     url
   }
 
-  def publishMovie(id: String, url: String): String = {
+  def publishMovie(id: String, url: String) = {
     val resource = new WebVideoStream(id, url, null)
     val msUrl = publishResource(id, resource)
-    debug("Publishing video with id {} and original URL {} at {}.", id, url, msUrl)
+    if (msUrl.isDefined) {
+      debug("Publishing video with id {} and original URL {} at {}.", id, url, msUrl)
+    }
     msUrl
   }
 
-  private def publishResource(id: String, resource: DLNAResource): String = {
+  private def publishResource(id: String, resource: DLNAResource): Option[String] = {
     if (published.contains(id)) {
       unpublish(id)
     }
     published += ((id, resource))
     if (addDynamicResource(resource)) {
-      baseUrl + "/get/" + resource.getResourceId + "/" + resource.getName
+      Some(baseUrl + "/get/" + resource.getResourceId + "/" + resource.getName)
     } else {
-      baseUrl + "/get/WONT_WORK"
+      None
     }
   }
 

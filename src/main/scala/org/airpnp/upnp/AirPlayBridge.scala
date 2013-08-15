@@ -11,6 +11,7 @@ import java.io.InputStream
 import org.airpnp.dlna.DLNAPublisher
 import scala.util.Success
 import scala.util.Failure
+import java.io.IOException
 
 object AirPlayBridge {
   private val AVTRANSPORT_SERVICE_TYPE = "urn:schemas-upnp-org:service:AVTransport:1"
@@ -62,12 +63,13 @@ class AirPlayBridge(device: Device,
   }
 
   def play(location: String, position: Double) = {
+    //TODO: Publish a video resource
     val a = avTransport.action("SetAVTransportURI").get
     val msg = createMessage(a, ("CurrentURI", location), ("CurrentURIMetaData", ""))
     sender.apply(controlUrl, msg).map {
       case _ => ()
     }
-    //TODO: Save position, we cannot set it until the device knows the location
+    //TODO: Save position, we cannot set it until the device knows the duration
   }
 
   def setProperty(name: String, value: Any) = {
@@ -106,13 +108,17 @@ class AirPlayBridge(device: Device,
   }
 
   def showPhoto(data: () => InputStream, length: Int, transition: String) = {
-    val url = dlnaPublisher.publishPhoto("tempid", data, length)
-    info("Showing photo with length {}, transition {} is ignored.", length.toString, transition)
-    trace("-- Photo URL is {}.", url)
-    val setAVTransportURI = avTransport.action("SetAVTransportURI").get
-    val msg = createMessage(setAVTransportURI, ("CurrentURI", url), ("CurrentURIMetaData", ""))
-    sender(controlUrl, msg).map {
-      case _ => setRate(1.0)
+    dlnaPublisher.publishPhoto("tempid", data, length) match {
+      case Some(url) =>
+        info("Showing photo with length {}, transition {} is ignored.", length.toString, transition)
+        val setAVTransportURI = avTransport.action("SetAVTransportURI").get
+        val msg = createMessage(setAVTransportURI, ("CurrentURI", url), ("CurrentURIMetaData", ""))
+        sender(controlUrl, msg).map {
+          case _ => setRate(1.0)
+        }
+
+      case None =>
+        throw new IOException("Failed to show photo because publishing failed.")
     }
   }
 

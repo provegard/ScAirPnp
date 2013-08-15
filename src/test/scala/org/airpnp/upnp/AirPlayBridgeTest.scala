@@ -21,6 +21,7 @@ import org.fest.assertions.Assertions.assertThat
 import org.airpnp.airplay.DurationAndPosition
 import java.io.InputStream
 import org.airpnp.TraceLogging
+import java.io.IOException
 
 private abstract class FakeSender {
   def send(url: String, msg: SoapMessage): Future[SoapMessage]
@@ -150,30 +151,36 @@ class AirPlayBridgeTest extends TraceLogging {
 
   @Test def showPhotoShouldPublishAPhoto() {
     when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
-    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn("http://ms.com/resource")
+    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn(Some("http://ms.com/resource"))
     Await.result(bridge.showPhoto(null, 1234, "transition"), 1 second)
     verify(publisher).publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), mockEq(1234))
   }
 
   @Test def showPhotoShouldSendSetAVTransportURI() {
     when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
-    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn("http://ms.com/resource")
+    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn(Some("http://ms.com/resource"))
     Await.result(bridge.showPhoto(null, 1234, "transition"), 1 second)
     verify(fakeSender).send(anyString, soapMessageWithName("SetAVTransportURI"))
   }
 
   @Test def showPhotoShouldSendResourceUriAsArgumentToSetAVTransportURI() {
     when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
-    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn("http://ms.com/resource")
+    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn(Some("http://ms.com/resource"))
     Await.result(bridge.showPhoto(null, 1234, "transition"), 1 second)
     verify(fakeSender).send(anyString, soapMessageWithArgument("CurrentURI", "http://ms.com/resource"))
   }
 
   @Test def showPhotoShouldAlsoSendPlay() {
     when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
-    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn("http://ms.com/resource")
+    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn(Some("http://ms.com/resource"))
     Await.result(bridge.showPhoto(null, 1234, "transition"), 1 second)
     verify(fakeSender).send(anyString, soapMessageWithName("Play"))
+  }
+
+  @Test(expectedExceptions = Array(classOf[IOException])) def showPhotoShouldThrowIfPublishingFails() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
+    when(publisher.publishPhoto(anyString, mockAny(classOf[InputStreamFactory]), anyInt)).thenReturn(None)
+    Await.result(bridge.showPhoto(null, 1234, "transition"), 1 second)
   }
 
   private def withReply(replyCreator: SoapMessage => SoapMessage): Answer[Object] = new Answer[Object] {

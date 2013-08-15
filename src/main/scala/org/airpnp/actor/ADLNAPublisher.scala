@@ -8,7 +8,7 @@ import org.airpnp.dlna.DLNAPublisher
 private case class PublishPhoto(id: String, data: () => InputStream, len: Int)
 private case class PublishMovie(id: String, url: String)
 private case class Unpublish(id: String)
-private case class Done(ret: String)
+private case class Done(ret: Option[String])
 
 class ADLNAPublisher(delegee: org.airpnp.dlna.DLNAPublisher) extends BaseActor with DLNAPublisher { self =>
 
@@ -44,7 +44,7 @@ class ADLNAPublisher(delegee: org.airpnp.dlna.DLNAPublisher) extends BaseActor w
 
         case up: Unpublish =>
           delegee.unpublish(up.id)
-          sender ! Done("")
+          sender ! Done(Some(""))
           
         case Stop =>
           debug("DLNA publisher was stopped.")
