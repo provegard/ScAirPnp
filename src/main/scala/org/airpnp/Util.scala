@@ -1,29 +1,50 @@
 package org.airpnp;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
+import scala.language.implicitConversions
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.net.ServerSocket
+import java.util.ArrayList
+import java.util.Arrays
+import java.util.Iterator
+import java.util.List
+import java.util.Map
+import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPath
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathExpression
+import javax.xml.xpath.XPathExpressionException
+import javax.xml.xpath.XPathFactory
+import org.w3c.dom.Document
+import org.w3c.dom.Node
+import org.w3c.dom.NodeList
+import org.xml.sax.InputSource
+import scala.concurrent.Future
+import scala.concurrent.Promise
+import scala.util.Success
+import scala.util.Failure
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Util {
+
+  class FutureCombinator[T] private[airpnp] (f: Future[T]) {
+    def followWith[U](other: => Future[U]): Future[U] = {
+      val p = Promise[U]()
+      f.onComplete {
+        case Success(result) =>
+          other.onComplete {
+            case Success(x) => p.success(x)
+            case Failure(t) => p.failure(t)
+          }
+        case Failure(t) => p.failure(t)
+      }
+      p.future
+    }
+  }
+
+  implicit def combinefuture[T](f: Future[T]): FutureCombinator[T] = new FutureCombinator(f)
 
   /**
    * Split a USN into a UDN and a device or service type.

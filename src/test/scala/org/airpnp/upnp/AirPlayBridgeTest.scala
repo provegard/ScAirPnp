@@ -1,8 +1,9 @@
 package org.airpnp.upnp
 
+import org.airpnp.Util.combinefuture
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.future
-import org.mockito.Mockito.{ mock, when, verify }
+import org.mockito.Mockito.{ mock, when, verify, never }
 import org.testng.annotations.Test
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.BeforeMethod
@@ -22,6 +23,7 @@ import org.airpnp.airplay.DurationAndPosition
 import java.io.InputStream
 import org.airpnp.TraceLogging
 import java.io.IOException
+import org.mockito.Mockito
 
 private abstract class FakeSender {
   def send(url: String, msg: SoapMessage): Future[SoapMessage]
@@ -75,6 +77,80 @@ class AirPlayBridgeTest extends TraceLogging {
     }))
     val dp = Await.result(bridge.getScrub, 1 second)
     assertThat(dp).isEqualTo(DurationAndPosition(59.0, 10.0))
+  }
+
+  @Test def getScrubShouldSeekAfterPlayIfItHasDuration() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withReply({
+      msg =>
+        msg.getName match {
+          case "SetAVTransportURI" => createReply(msg)
+          case "Seek" => createReply(msg)
+          case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:01:00"), ("RelTime", "0:00:00"))
+        }
+    }))
+    val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.getScrub)
+    Await.result(f, 1 second)
+    verify(fakeSender).send(anyString, soapMessageWithName("SetAVTransportURI"))
+    verify(fakeSender).send(anyString, soapMessageWithName("GetPositionInfo"))
+    verify(fakeSender).send(anyString, soapMessageWithName("Seek"))
+  }
+
+  @Test def getScrubShouldSeekWithPlayPositionAsPercentage() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withReply({
+      msg =>
+        msg.getName match {
+          case "SetAVTransportURI" => createReply(msg)
+          case "Seek" => createReply(msg)
+          case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:01:00"), ("RelTime", "0:00:00"))
+        }
+    }))
+    val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.getScrub)
+    Await.result(f, 1 second)
+    verify(fakeSender).send(anyString, soapMessageWithName("SetAVTransportURI"))
+    verify(fakeSender).send(anyString, soapMessageWithName("GetPositionInfo"))
+    verify(fakeSender).send(anyString, soapMessageWithArgument("Target", "0:00:06.000"))
+  }
+
+  @Test def getScrubShouldNotSeekAfterPlayIfItDoesntHaveDuration() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withReply({
+      msg =>
+        msg.getName match {
+          case "SetAVTransportURI" => createReply(msg)
+          case "Seek" => createReply(msg)
+          case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:00:00"), ("RelTime", "0:00:00"))
+        }
+    }))
+    val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.getScrub)
+    Await.result(f, 1 second)
+    verify(fakeSender, never()).send(anyString, soapMessageWithName("Seek"))
+  }
+
+  @Test def getScrubShouldNotSeekAfterPlayIfPositionHasBeenPassedAlready() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withReply({
+      msg =>
+        msg.getName match {
+          case "SetAVTransportURI" => createReply(msg)
+          case "Seek" => createReply(msg)
+          case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:01:00"), ("RelTime", "0:00:10"))
+        }
+    }))
+    val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.getScrub)
+    Await.result(f, 1 second)
+    verify(fakeSender, never()).send(anyString, soapMessageWithName("Seek"))
+  }
+
+  @Test def getScrubShouldNotSeekAfterManualSeek() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withReply({
+      msg =>
+        msg.getName match {
+          case "SetAVTransportURI" => createReply(msg)
+          case "Seek" => createReply(msg)
+          case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:01:00"), ("RelTime", "0:00:00"))
+        }
+    }))
+    val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.setScrub(1)).followWith(bridge.getScrub)
+    Await.result(f, 1 second)
+    verify(fakeSender, never()).send(anyString, soapMessageWithArgument("Target", "0:00:06.000"))
   }
 
   @Test def isPlayingShouldSendGetTransportInfo() {

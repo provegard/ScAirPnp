@@ -12,6 +12,7 @@ import org.airpnp.dlna.DLNAPublisher
 import scala.util.Success
 import scala.util.Failure
 import java.io.IOException
+import scala.concurrent.Promise
 
 object AirPlayBridge {
   private val AVTRANSPORT_SERVICE_TYPE = "urn:schemas-upnp-org:service:AVTransport:1"
@@ -23,6 +24,7 @@ class AirPlayBridge(device: Device,
   //TODO: Assume that required actions exist here, verify when we build the device!!!
   // Only Pause is optional!!
 
+  private var playPosPct: Option[Double] = None
   private var traceLogId = 0
   private val instanceId = 0
   private val avTransport = device.getServices.find(s => s.getServiceType == AirPlayBridge.AVTRANSPORT_SERVICE_TYPE).get
@@ -45,14 +47,31 @@ class AirPlayBridge(device: Device,
   }
 
   def getScrub() = {
+    val p = Promise[DurationAndPosition]()
     val a = avTransport.action("GetPositionInfo").get
-    sender.apply(controlUrl, createMessage(a)).map {
-      case reply => {
-        val d = parseDuration(reply.getArgument("TrackDuration", "0:00:00"))
-        val p = parseDuration(reply.getArgument("RelTime", "0:00:00"))
-        new DurationAndPosition(d, p)
+    sender.apply(controlUrl, createMessage(a)).map({
+      reply =>
+        {
+          val d = parseDuration(reply.getArgument("TrackDuration", "0:00:00"))
+          val p = parseDuration(reply.getArgument("RelTime", "0:00:00"))
+          new DurationAndPosition(d, p)
+        }
+    }).onComplete {
+      case Success(dp) => playPosPct match {
+        case Some(pos) if dp.duration > 0 && pos * dp.duration > dp.position =>
+          setScrub(pos * dp.duration).onComplete {
+            case Success(_) =>
+              // After seeking, the position before seeking isn't really correct, but
+              // once the device is done seeking, a subsequent getScrub will return
+              // the correct position.
+              p.success(dp)
+            case Failure(t) => p.failure(t)
+          }
+        case _ => p.success(dp)
       }
+      case Failure(t) => p.failure(t)
     }
+    p.future
   }
 
   def isPlaying() = {
@@ -64,12 +83,12 @@ class AirPlayBridge(device: Device,
 
   def play(location: String, position: Double) = {
     //TODO: Publish a video resource
+    playPosPct = Some(position)
     val a = avTransport.action("SetAVTransportURI").get
     val msg = createMessage(a, ("CurrentURI", location), ("CurrentURIMetaData", ""))
     sender.apply(controlUrl, msg).map {
       case _ => ()
     }
-    //TODO: Save position, we cannot set it until the device knows the duration
   }
 
   def setProperty(name: String, value: Any) = {
@@ -99,6 +118,7 @@ class AirPlayBridge(device: Device,
   }
 
   def setScrub(position: Double) = {
+    playPosPct = None
     val hms = toDuration(position)
     val a = avTransport.action("Seek").get
     val msg = createMessage(a, ("Unit", "REL_TIME"), ("Target", hms))
