@@ -1,5 +1,6 @@
 package org.airpnp.upnp
 
+import org.airpnp.upnp.createSoapError
 import org.airpnp.Util.combinefuture
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.future
@@ -259,11 +260,32 @@ class AirPlayBridgeTest extends TraceLogging {
     Await.result(bridge.showPhoto(null, 1234, "transition"), 1 second)
   }
 
+  @Test def stopShouldSendStop() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
+    Await.result(bridge.stop(), 1 second)
+    verify(fakeSender).send(anyString, soapMessageWithName("Stop"))
+  }
+
+  @Test def stopShouldIgnoreSoapError718() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withError(718))
+    Await.result(bridge.stop(), 1 second) // should not throw
+  }
+
+  @Test(expectedExceptions = Array(classOf[SoapError]))
+  def stopShouldNotIgnoreOtherErrorsThan718() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withError(123))
+    Await.result(bridge.stop(), 1 second)
+  }
+
   private def withReply(replyCreator: SoapMessage => SoapMessage): Answer[Object] = new Answer[Object] {
     def answer(invocation: InvocationOnMock) = {
       val msg = invocation.getArguments()(1).asInstanceOf[SoapMessage]
       future { replyCreator(msg) }
     }
+  }
+
+  private def withError(code: Int): Answer[Object] = new Answer[Object] {
+    def answer(invocation: InvocationOnMock) = future { throw createSoapError(code, "Code " + code) }
   }
 
   private def createReply(msg: SoapMessage, args: (String, String)*) = {

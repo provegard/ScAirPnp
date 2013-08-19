@@ -116,23 +116,8 @@ object SoapClientTest {
 
   private class ErrHandler extends RouteHandler {
     override def handlePOST(request: Request, response: Response) {
-      val doc = <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-                  <s:Body>
-                    <s:Fault>
-                      <faultcode>s:Client</faultcode>
-                      <faultstring>UPnPError</faultstring>
-                      <detail>
-                        <UPnPError xmlns="urn:schemas-upnp-org:control-1-0">
-                          <errorCode>123</errorCode>
-                          <errorDescription>Some error</errorDescription>
-                        </UPnPError>
-                      </detail>
-                    </s:Fault>
-                  </s:Body>
-                </s:Envelope>
-      val sw = new StringWriter
-      val str = XML.write(sw, doc, "UTF-8", true, null, MinimizeMode.Default)
-      response.respond(withUtf8Text(sw.toString).andStatusCode(500).andContentType("text/xml"))
+      val str = createSoapError(123, "Some error").xml
+      response.respond(withUtf8Text(str).andStatusCode(500).andContentType("text/xml"))
     }
   }
 }

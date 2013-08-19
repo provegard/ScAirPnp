@@ -143,12 +143,13 @@ class AirPlayBridge(device: Device,
   }
 
   def stop() = {
-    //TODO: Debug log
-    //TODO: Handle SOAP error generally, we can get 718 here and should ignore that!
     val a = avTransport.action("Stop").get
     val msg = createMessage(a)
     sender.apply(controlUrl, msg).map {
       case _ => ()
+    } recover {
+      // My WDTVLIVE responds with 718 on Stop sometimes for no apparent reason...
+      case x: SoapError if x.code == 718 => // ignore
     }
   }
 }

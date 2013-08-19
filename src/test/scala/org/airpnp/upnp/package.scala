@@ -1,6 +1,9 @@
 package org.airpnp
 
 import scala.xml.XML
+import java.io.StringWriter
+import scala.xml.MinimizeMode
+import java.io.ByteArrayInputStream
 
 package object upnp {
 
@@ -21,5 +24,25 @@ package object upnp {
     }
 
     device
+  }
+
+  def createSoapError(code: Int, message: String): SoapError = {
+    val doc = <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+                <s:Body>
+                  <s:Fault>
+                    <faultcode>s:Client</faultcode>
+                    <faultstring>UPnPError</faultstring>
+                    <detail>
+                      <UPnPError xmlns="urn:schemas-upnp-org:control-1-0">
+                        <errorCode>{ code }</errorCode>
+                        <errorDescription>{ message }</errorDescription>
+                      </UPnPError>
+                    </detail>
+                  </s:Fault>
+                </s:Body>
+              </s:Envelope>
+    val sw = new StringWriter
+    XML.write(sw, doc, "UTF-8", true, null, MinimizeMode.Default)
+    SoapError.parse(new ByteArrayInputStream(sw.toString.getBytes("UTF8")))
   }
 }
