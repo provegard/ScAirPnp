@@ -82,13 +82,20 @@ class AirPlayBridge(device: Device,
   }
 
   def play(location: String, position: Double) = {
-    //TODO: Publish a video resource
     playPosPct = Some(position)
-    val a = avTransport.action("SetAVTransportURI").get
-    val msg = createMessage(a, ("CurrentURI", location), ("CurrentURIMetaData", ""))
-    sender.apply(controlUrl, msg).map {
-      case _ => ()
+    //TODO: Better ID!
+    dlnaPublisher.publishMovie("tempvidid", location) match {
+      case Some(url) =>
+        val a = avTransport.action("SetAVTransportURI").get
+        val msg = createMessage(a, ("CurrentURI", url), ("CurrentURIMetaData", ""))
+        sender.apply(controlUrl, msg).map {
+          case _ => ()
+        }
+
+      case None =>
+        throw new IOException("Failed to show photo because publishing failed.")
     }
+
   }
 
   def setProperty(name: String, value: Any) = {
@@ -128,6 +135,7 @@ class AirPlayBridge(device: Device,
   }
 
   def showPhoto(data: () => InputStream, length: Int, transition: String) = {
+    //TODO: Better ID!
     dlnaPublisher.publishPhoto("tempid", data, length) match {
       case Some(url) =>
         info("Showing photo with length {}, transition {} is ignored.", length.toString, transition)

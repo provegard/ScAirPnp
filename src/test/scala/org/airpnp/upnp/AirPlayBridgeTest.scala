@@ -1,6 +1,5 @@
 package org.airpnp.upnp
 
-import org.airpnp.upnp.createSoapError
 import org.airpnp.Util.combinefuture
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.future
@@ -89,6 +88,7 @@ class AirPlayBridgeTest extends TraceLogging {
           case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:01:00"), ("RelTime", "0:00:00"))
         }
     }))
+    when(publisher.publishMovie(anyString, anyString)).thenReturn(Some("http://ms.com/resource"))
     val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.getScrub)
     Await.result(f, 1 second)
     verify(fakeSender).send(anyString, soapMessageWithName("SetAVTransportURI"))
@@ -105,6 +105,7 @@ class AirPlayBridgeTest extends TraceLogging {
           case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:01:00"), ("RelTime", "0:00:00"))
         }
     }))
+    when(publisher.publishMovie(anyString, anyString)).thenReturn(Some("http://ms.com/resource"))
     val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.getScrub)
     Await.result(f, 1 second)
     verify(fakeSender).send(anyString, soapMessageWithName("SetAVTransportURI"))
@@ -121,6 +122,7 @@ class AirPlayBridgeTest extends TraceLogging {
           case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:00:00"), ("RelTime", "0:00:00"))
         }
     }))
+    when(publisher.publishMovie(anyString, anyString)).thenReturn(Some("http://ms.com/resource"))
     val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.getScrub)
     Await.result(f, 1 second)
     verify(fakeSender, never()).send(anyString, soapMessageWithName("Seek"))
@@ -135,6 +137,7 @@ class AirPlayBridgeTest extends TraceLogging {
           case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:01:00"), ("RelTime", "0:00:10"))
         }
     }))
+    when(publisher.publishMovie(anyString, anyString)).thenReturn(Some("http://ms.com/resource"))
     val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.getScrub)
     Await.result(f, 1 second)
     verify(fakeSender, never()).send(anyString, soapMessageWithName("Seek"))
@@ -149,6 +152,7 @@ class AirPlayBridgeTest extends TraceLogging {
           case "GetPositionInfo" => createReply(msg, ("TrackDuration", "0:01:00"), ("RelTime", "0:00:00"))
         }
     }))
+    when(publisher.publishMovie(anyString, anyString)).thenReturn(Some("http://ms.com/resource"))
     val f = bridge.play("http://foo.com/some.mpg", 0.1).followWith(bridge.setScrub(1)).followWith(bridge.getScrub)
     Await.result(f, 1 second)
     verify(fakeSender, never()).send(anyString, soapMessageWithArgument("Target", "0:00:06.000"))
@@ -178,16 +182,25 @@ class AirPlayBridgeTest extends TraceLogging {
     assertThat(playing).isFalse()
   }
 
+  @Test def playShouldPublishAVideo() {
+    when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
+    when(publisher.publishMovie(anyString, anyString)).thenReturn(Some("http://ms.com/resource"))
+    Await.result(bridge.play("http://orig.com/vid.avi", 0), 1 second)
+    verify(publisher).publishMovie(anyString, mockEq("http://orig.com/vid.avi"))
+  }
+
   @Test def playShouldSendSetAVTransportURI() {
     when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
+    when(publisher.publishMovie(anyString, anyString)).thenReturn(Some("http://ms.com/resource"))
     Await.result(bridge.play("http://foo.com/bar.mov", 0.0), 1 second)
     verify(fakeSender).send(anyString, soapMessageWithName("SetAVTransportURI"))
   }
 
-  @Test def playShouldSendUriAsArgument() {
+  @Test def playShouldSendResourceUriAsArgument() {
     when(fakeSender.send(anyString, isA(classOf[SoapMessage]))).thenAnswer(withNoArgReply())
+    when(publisher.publishMovie(anyString, anyString)).thenReturn(Some("http://ms.com/resource"))
     Await.result(bridge.play("http://foo.com/bar.mov", 0.0), 1 second)
-    verify(fakeSender).send(anyString, soapMessageWithArgument("CurrentURI", "http://foo.com/bar.mov"))
+    verify(fakeSender).send(anyString, soapMessageWithArgument("CurrentURI", "http://ms.com/resource"))
   }
 
   @Test def setRateShouldSendPlayWhenRateIs1() {
